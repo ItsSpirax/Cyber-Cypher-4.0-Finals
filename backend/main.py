@@ -1,5 +1,7 @@
+import azure.cognitiveservices.speech as speechsdk
 from fastapi import FastAPI, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
+from twilio.rest import Client
 import asyncio
 import json
 import os
@@ -10,6 +12,9 @@ from typing import Dict
 load_dotenv()
 
 app = FastAPI()
+twilio_client = Client(os.getenv("TWILIO_ACCOUNT_SID"), os.getenv("TWILIO_AUTH_TOKEN"))
+speech_config = speechsdk.SpeechConfig(subscription=os.getenv("AZURE_SPEECH_KEY"), region=os.getenv("AZURE_SERVICE_REGION"))
+
 
 # Add CORS middleware
 app.add_middleware(
@@ -20,6 +25,27 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+def send_otp(no, otp):
+    message = twilio_client.messages.create(to=f"whatsapp:+91{no}", from_=os.getenv("TWILIO_PHONE_NUMBER"), content_sid='HX229f5a04fd0510ce1b071852155d3e75', content_variables='{"1":"' + str(otp) + '"}')
+    return message.sid
+
+def tts(text, language):
+    speech_config.speech_synthesis_voice_name = "kn-IN-SapnaNeural"
+    speech_synthesizer = speechsdk.SpeechSynthesizer(speech_config=speech_config)
+    result = speech_synthesizer.speak_text_async(text).get()
+    filename = "output.wav"
+    result = speech_synthesizer.speak_text_to_audio_file(text, filename)
+    return filename
+
+@app.post("/send_otp")
+async def send_otp_endpoint(to: str, otp: int):
+    sid = send_otp(to, otp)
+    return {"status": "success", "sid": sid}
+
+@app.post("/tts")
+async def tts_endpoint(text: str, language: str):
+    filename = tts(text, language)
+    return {"filename": filename}
 
 class GeminiConnection:
     def __init__(self):
