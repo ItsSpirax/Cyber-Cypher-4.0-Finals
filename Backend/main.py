@@ -33,19 +33,19 @@ app.add_middleware(
 )
 
 indian_languages = {
-    "Assamese": {"Female": "as-IN-YashicaNeural", "Male": "as-IN-PriyomNeural"},
-    "Bengali": {"Female": "bn-IN-TanishaaNeural", "Male": "bn-IN-BashkarNeural"},
-    "Gujarati": {"Female": "gu-IN-DhwaniNeural", "Male": "gu-IN-NiranjanNeural"},
-    "Hindi": {"Female": "hi-IN-AnanyaNeural", "Male": "hi-IN-AaravNeural"},
-    "Kannada": {"Female": "kn-IN-SapnaNeural", "Male": "kn-IN-GaganNeural"},
-    "Malayalam": {"Female": "ml-IN-SobhanaNeural", "Male": "ml-IN-MidhunNeural"},
-    "Marathi": {"Female": "mr-IN-AarohiNeural", "Male": "mr-IN-ManoharNeural"},
-    "Oriya": {"Female": "or-IN-SubhasiniNeural", "Male": "or-IN-SukantNeural"},
-    "Punjabi": {"Female": "pa-IN-VaaniNeural", "Male": "pa-IN-OjasNeural"},
-    "Tamil": {"Female": "ta-IN-PallaviNeural", "Male": "ta-IN-ValluvarNeural"},
-    "Telugu": {"Female": "te-IN-ShrutiNeural", "Male": "te-IN-MohanNeural"},
-    "Urdu": {"Female": "ur-IN-GulNeural", "Male": "ur-IN-SalmanNeural"},
-    "English": {"Female": "en-IN-AashiNeural", "Male": "en-IN-AaravNeural"},
+    "as": {"Female": "as-IN-YashicaNeural", "Male": "as-IN-PriyomNeural"},
+    "bn": {"Female": "bn-IN-TanishaaNeural", "Male": "bn-IN-BashkarNeural"},
+    "gu": {"Female": "gu-IN-DhwaniNeural", "Male": "gu-IN-NiranjanNeural"},
+    "hi": {"Female": "hi-IN-AnanyaNeural", "Male": "hi-IN-AaravNeural"},
+    "kn": {"Female": "kn-IN-SapnaNeural", "Male": "kn-IN-GaganNeural"},
+    "ml": {"Female": "ml-IN-SobhanaNeural", "Male": "ml-IN-MidhunNeural"},
+    "mr": {"Female": "mr-IN-AarohiNeural", "Male": "mr-IN-ManoharNeural"},
+    "or": {"Female": "or-IN-SubhasiniNeural", "Male": "or-IN-SukantNeural"},
+    "pa": {"Female": "pa-IN-VaaniNeural", "Male": "pa-IN-OjasNeural"},
+    "ta": {"Female": "ta-IN-PallaviNeural", "Male": "ta-IN-ValluvarNeural"},
+    "te": {"Female": "te-IN-ShrutiNeural", "Male": "te-IN-MohanNeural"},
+    "ur": {"Female": "ur-IN-GulNeural", "Male": "ur-IN-SalmanNeural"},
+    "en": {"Female": "en-IN-AashiNeural", "Male": "en-IN-AaravNeural"},
 }
 
 
