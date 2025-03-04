@@ -168,33 +168,39 @@ const HomePage = () => {
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                     <FeatureCard
                         icon="globe"
-                        title="Multilingual Support"
-                        description="Communicate in over 100 languages with our AI agents, removing all language barriers."
+                        title={t("feature.multilingualSupport.title")}
+                        description={t(
+                            "feature.multilingualSupport.description",
+                        )}
                     />
                     <FeatureCard
                         icon="clock"
-                        title="24/7 Availability"
-                        description="Our AI agents are always available to help you find your dream home, any time of day."
+                        title={t("feature.availability.title")}
+                        description={t("feature.availability.description")}
                     />
                     <FeatureCard
                         icon="search"
-                        title="Smart Matching"
-                        description="Our AI understands your preferences and matches you with properties you'll love."
+                        title={t("feature.smartMatching.title")}
+                        description={t("feature.smartMatching.description")}
                     />
                     <FeatureCard
                         icon="shield"
-                        title="Secure Transactions"
-                        description="End-to-end encryption and secure payment processing for peace of mind."
+                        title={t("feature.secureTransactions.title")}
+                        description={t(
+                            "feature.secureTransactions.description",
+                        )}
                     />
                     <FeatureCard
                         icon="map-pin"
-                        title="Local Expertise"
-                        description="Our AI is trained on local market data to give you the best advice for each area."
+                        title={t("feature.localExpertise.title")}
+                        description={t("feature.localExpertise.description")}
                     />
                     <FeatureCard
                         icon="heart"
-                        title="Personalized Experience"
-                        description="The more you interact, the better our AI understands your unique preferences."
+                        title={t("feature.personalizedExperience.title")}
+                        description={t(
+                            "feature.personalizedExperience.description",
+                        )}
                     />
                 </div>
             </section>
@@ -206,12 +212,6 @@ const HomePage = () => {
                             <h3 className="font-bold mb-4">
                                 {t("footer.aiEstate")}
                             </h3>
-                            <div className="flex items-center gap-2 mb-2">
-                                <Home className="h-5 w-5 text-primary" />
-                                <span className="text-gray-400">
-                                    AI-powered real estate
-                                </span>
-                            </div>
                         </div>
                         <div>
                             <h3 className="font-bold mb-4">Quick Links</h3>

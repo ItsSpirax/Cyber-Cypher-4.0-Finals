@@ -13,6 +13,32 @@
         "speakYourLanguage": "Habla Tu Idioma, Encuentra Tu Hogar",
         "speakYourLanguageDesc": "Nuestros agentes de IA entienden y se comunican en más de 100 idiomas, haciendo tu búsqueda de propiedad más fácil sin importar de dónde seas."
     },
+    "feature": {
+        "multilingualSupport": {
+            "title": "Soporte multilingüe",
+            "description": "Comuníquese en más de 100 idiomas con nuestros agentes de IA, eliminando todas las barreras lingüísticas."
+        },
+        "availability": {
+            "title": "Disponibilidad 24/7",
+            "description": "Nuestros agentes de IA están siempre disponibles para ayudarte a encontrar la casa de tus sueños en cualquier momento."
+        },
+        "smartMatching": {
+            "title": "Coincidencia inteligente",
+            "description": "Nuestra IA entiende tus preferencias y te empareja con propiedades que te encantarán."
+        },
+        "secureTransactions": {
+            "title": "Transacciones seguras",
+            "description": "Cifrado de extremo a extremo y procesamiento seguro de pagos para tu tranquilidad."
+        },
+        "localExpertise": {
+            "title": "Expertise local",
+            "description": "Nuestra IA está entrenada en datos del mercado local para brindarte el mejor asesoramiento para cada área."
+        },
+        "personalizedExperience": {
+            "title": "Experiencia personalizada",
+            "description": "Cuanto más interactúas, mejor nuestra IA entiende tus preferencias únicas."
+        }
+    },
     "footer": {
         "aiEstate": "AI Estate",
         "quickLinks": {

@@ -1,3 +1,4 @@
+import "@/i18n"; // ensure i18n is imported before rendering any component
 import Meet from "./pages/Meet";
 import { ThemeProvider } from "./components/theme-provider";
 import { BrowserRouter, Route, Routes } from "react-router";
