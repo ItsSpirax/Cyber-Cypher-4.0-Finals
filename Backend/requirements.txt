@@ -8,9 +8,3 @@ python-multipart
 twilio
 uvicorn
 websockets
-pandas
-ast
-faiss
-numpy
-sqlite3
-scikit-learn
