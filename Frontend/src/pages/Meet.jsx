@@ -33,6 +33,7 @@ const Meet = () => {
         voice: "Puck",
         googleSearch: true,
         allowInterruptions: false,
+        language: navigator.language || navigator.userLanguage,
     });
     const [isConnected, setIsConnected] = useState(false);
     const [userSpeaking, setUserSpeaking] = useState(false);

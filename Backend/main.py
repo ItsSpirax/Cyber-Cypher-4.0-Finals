@@ -281,7 +281,6 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
 
                             if "inlineData" in p:
                                 audio_data = p["inlineData"]["data"]
-                                print(audio_data)
                                 await websocket.send_json(
                                     {"type": "audio", "data": audio_data}
                                 )
