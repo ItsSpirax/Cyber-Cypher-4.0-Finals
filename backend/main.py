@@ -1,3 +1,4 @@
+import tempfile
 import azure.cognitiveservices.speech as speechsdk
 from fastapi import FastAPI, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
@@ -8,43 +9,110 @@ import os
 from dotenv import load_dotenv
 from websockets import connect
 from typing import Dict
+import random
+from pymongo import MongoClient
 
 load_dotenv()
 
 app = FastAPI()
 twilio_client = Client(os.getenv("TWILIO_ACCOUNT_SID"), os.getenv("TWILIO_AUTH_TOKEN"))
 speech_config = speechsdk.SpeechConfig(subscription=os.getenv("AZURE_SPEECH_KEY"), region=os.getenv("AZURE_SERVICE_REGION"))
+mongo_client = MongoClient(os.getenv("MONGO_URI"))
+db = mongo_client.estate_agent
 
-
-# Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, replace with your frontend URL
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-def send_otp(no, otp):
-    message = twilio_client.messages.create(to=f"whatsapp:+91{no}", from_=os.getenv("TWILIO_PHONE_NUMBER"), content_sid='HX229f5a04fd0510ce1b071852155d3e75', content_variables='{"1":"' + str(otp) + '"}')
-    return message.sid
+indian_languages = {
+    "Assamese": {
+        "Female": "as-IN-YashicaNeural",
+        "Male": "as-IN-PriyomNeural"
+    },
+    "Bengali": {
+        "Female": "bn-IN-TanishaaNeural",
+        "Male": "bn-IN-BashkarNeural"
+    },
+    "Gujarati": {
+        "Female": "gu-IN-DhwaniNeural",
+        "Male": "gu-IN-NiranjanNeural"
+    },
+    "Hindi": {
+        "Female": "hi-IN-AnanyaNeural",
+        "Male": "hi-IN-AaravNeural"
+    },
+    "Kannada": {
+        "Female": "kn-IN-SapnaNeural",
+        "Male": "kn-IN-GaganNeural"
+    },
+    "Malayalam": {
+        "Female": "ml-IN-SobhanaNeural",
+        "Male": "ml-IN-MidhunNeural"
+    },
+    "Marathi": {
+        "Female": "mr-IN-AarohiNeural",
+        "Male": "mr-IN-ManoharNeural"
+    },
+    "Oriya": {
+        "Female": "or-IN-SubhasiniNeural",
+        "Male": "or-IN-SukantNeural"
+    },
+    "Punjabi": {
+        "Female": "pa-IN-VaaniNeural",
+        "Male": "pa-IN-OjasNeural"
+    },
+    "Tamil": {
+        "Female": "ta-IN-PallaviNeural",
+        "Male": "ta-IN-ValluvarNeural"
+    },
+    "Telugu": {
+        "Female": "te-IN-ShrutiNeural",
+        "Male": "te-IN-MohanNeural"
+    },
+    "Urdu": {
+        "Female": "ur-IN-GulNeural",
+        "Male": "ur-IN-SalmanNeural"
+    },
+    "English": {
+        "Female": "en-IN-AashiNeural",
+        "Male": "en-IN-AaravNeural"
+    }
+}
 
-def tts(text, language):
-    speech_config.speech_synthesis_voice_name = "kn-IN-SapnaNeural"
-    speech_synthesizer = speechsdk.SpeechSynthesizer(speech_config=speech_config)
+def tts(text, language, gender = "Male"):
+    speech_config.speech_synthesis_voice_name = indian_languages[language][gender]
+    temp_file_path = tempfile.NamedTemporaryFile(suffix=".wav", delete=False).name
+    audio_config = speechsdk.audio.AudioOutputConfig(filename=temp_file_path)
+    speech_synthesizer = speechsdk.SpeechSynthesizer(speech_config=speech_config, audio_config=audio_config)
     result = speech_synthesizer.speak_text_async(text).get()
-    filename = "output.wav"
-    result = speech_synthesizer.speak_text_to_audio_file(text, filename)
-    return filename
 
-@app.post("/send_otp")
-async def send_otp_endpoint(to: str, otp: int):
-    sid = send_otp(to, otp)
-    return {"status": "success", "sid": sid}
+    file_path = 'output.wav'
+    with open(file_path, 'wb') as audio_file:
+        audio_file.write(result.audio_data)
+    return file_path
+
+@app.post("/register")
+async def register(name: str, no: str, gender: str):
+    otp = random.randint(100000, 999999)
+    db.users.insert_one({"name": name, "no": no, "gender": gender,"otp": otp, "verified": False, "role": "user"})
+    twilio_client.messages.create(to=f"whatsapp:+91{no}", from_=os.getenv("TWILIO_PHONE_NUMBER"), content_sid='HX229f5a04fd0510ce1b071852155d3e75', content_variables='{"1":"' + str(otp) + '"}')
+    return {"status": "success"}
+
+@app.post("/verify")
+async def verify(no: str, otp: int):
+    user = db.users.find_one({"no": no})
+    if user["otp"] == otp:
+        db.users.update_one({"no": no}, {"$set": {"verified": True}})
+        return {"status": "success"}
+    return {"status": "failure"}
 
 @app.post("/tts")
-async def tts_endpoint(text: str, language: str):
-    filename = tts(text, language)
+async def tts_endpoint(text: str, language: str, gender: str):
+    filename = tts(text, language, gender)
     return {"filename": filename}
 
 class GeminiConnection:
