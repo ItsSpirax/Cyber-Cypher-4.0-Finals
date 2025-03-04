@@ -1,13 +1,18 @@
-import { useState } from "react";
-import GeminiVoiceChat from "./components/custom/gemini-playground";
+import Meet from "./pages/Meet";
+import { ThemeProvider } from "./components/theme-provider";
+import { BrowserRouter, Route, Routes } from "react-router";
+import HomePage from "./pages/Home";
 
 function App() {
-    const [count, setCount] = useState(0);
-
     return (
-        <>
-            <GeminiVoiceChat />
-        </>
+        <ThemeProvider defaultTheme="dark">
+            <BrowserRouter>
+                <Routes>
+                    <Route index element={<HomePage />} />
+                    <Route path="/meet" element={<Meet />} />
+                </Routes>
+            </BrowserRouter>
+        </ThemeProvider>
     );
 }
 

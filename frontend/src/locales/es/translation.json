@@ -1,0 +1,35 @@
+{
+    "header": {
+        "brand": "AI Estate",
+        "talkToAgent": "Habla con un Agente"
+    },
+    "home": {
+        "mainHeading": "Bienes Raíces Sin Barreras de Idioma",
+        "subheading": "Nuestros agentes impulsados por IA hablan tu idioma, literalmente. Encuentra la casa de tus sueños en cualquier idioma y en cualquier parte del mundo.",
+        "talkAgentNow": "Habla con un Agente Ahora",
+        "browseProperties": "Explorar Propiedades"
+    },
+    "section": {
+        "speakYourLanguage": "Habla Tu Idioma, Encuentra Tu Hogar",
+        "speakYourLanguageDesc": "Nuestros agentes de IA entienden y se comunican en más de 100 idiomas, haciendo tu búsqueda de propiedad más fácil sin importar de dónde seas."
+    },
+    "footer": {
+        "aiEstate": "AI Estate",
+        "quickLinks": {
+            "home": "Inicio",
+            "properties": "Propiedades",
+            "talkToAgent": "Hablar con un Agente",
+            "aboutUs": "Sobre Nosotros"
+        },
+        "legal": {
+            "terms": "Términos de Servicio",
+            "privacy": "Política de Privacidad",
+            "cookies": "Política de Cookies"
+        },
+        "contact": {
+            "email": "info@aiestate.com",
+            "phone": "+1 (555) 123-4567"
+        },
+        "rights": "© {{year}} AI Estate. Todos los derechos reservados."
+    }
+}
