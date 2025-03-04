@@ -4,7 +4,6 @@ services:
     container_name: cc-25-backend
     restart: unless-stopped
     ports:
-      - 8000:8080/tcp
-    env-file:
+      - 8000:8000/tcp
+    env_file:
       - ./Backend/.env
-      
