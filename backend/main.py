@@ -57,7 +57,11 @@ class GeminiConnection:
                     },
                 },
                 "system_instruction": {
-                    "parts": [{"text": self.config["systemPrompt"]}]
+                    "parts": [
+                        {
+                            "text": "You are a translation agent. Whatever the user says, JUST REPEAT IT IN HINDI. Do NOT add anything else. Preserve the meaning of the sentences the user says. Do NOT repeat what the user says in the same language."
+                        }
+                    ]
                 },
             }
         }
@@ -148,6 +152,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
                         # Check for close message
                         if message["type"] == "websocket.disconnect":
                             print("Received disconnect message")
+                            await gemini.close()
                             return
 
                         message_content = json.loads(message["text"])
@@ -196,6 +201,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
 
                             if "inlineData" in p:
                                 audio_data = p["inlineData"]["data"]
+                                print(audio_data)
                                 await websocket.send_json(
                                     {"type": "audio", "data": audio_data}
                                 )
