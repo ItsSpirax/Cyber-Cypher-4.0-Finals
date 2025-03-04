@@ -127,7 +127,7 @@ class GeminiConnection:
             "setup": {
                 "model": f"models/{self.model}",
                 "generation_config": {
-                    "response_modalities": ["AUDIO"],
+                    "response_modalities": ["TEXT"],
                     "speech_config": {
                         "voice_config": {
                             "prebuilt_voice_config": {
@@ -139,7 +139,7 @@ class GeminiConnection:
                 "system_instruction": {
                     "parts": [
                         {
-                            "text": "You are a translation agent. Whatever the user says, JUST REPEAT IT IN HINDI. Do NOT add anything else. Preserve the meaning of the sentences the user says. Do NOT repeat what the user says in the same language."
+                            "text": f"You are a translation agent. Whatever the user says, JUST TRANSLATE IT TO {self.config["language"]}. Do NOT add anything else. Preserve the meaning of the sentences the user says. Do NOT repeat what the user says in the same language."
                         }
                     ]
                 },
