@@ -1,0 +1,10 @@
+services:
+  cc25-backend:
+    build: ./Backend
+    container_name: cc-25-backend
+    restart: unless-stopped
+    ports:
+      - 8000:8080/tcp
+    env-file:
+      - ./Backend/.env
+      
