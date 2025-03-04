@@ -5,7 +5,6 @@ pyaudio
 pymongo
 python-dotenv
 python-multipart
-shiny
 twilio
 uvicorn
-websockets
+websockets==10.1
