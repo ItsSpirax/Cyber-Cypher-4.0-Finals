@@ -1,7 +1,10 @@
+azure-cognitiveservices-speech==1.42.0
 fastapi==0.115.6
-uvicorn==0.27.0
-python-multipart==0.0.6
-python-dotenv==1.0.0
-pyaudio==0.2.14
 google-genai
-websockets
+pyaudio==0.2.14
+pymongo==4.11
+python-dotenv==1.0.0
+python-multipart==0.0.6
+twilio==9.4.6
+uvicorn==0.27.0
+websockets==15.0
