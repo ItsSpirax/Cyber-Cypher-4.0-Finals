@@ -12,6 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pymongo import MongoClient
 from twilio.rest import Client
 from websockets import connect
+import base64 as b64
 
 
 load_dotenv()
@@ -51,17 +52,19 @@ indian_languages = {
 
 def tts(text, language, gender="Male"):
     speech_config.speech_synthesis_voice_name = indian_languages[language][gender]
-    temp_file_path = tempfile.NamedTemporaryFile(suffix=".wav", delete=False).name
-    audio_config = speechsdk.audio.AudioOutputConfig(filename=temp_file_path)
-    speech_synthesizer = speechsdk.SpeechSynthesizer(
-        speech_config=speech_config, audio_config=audio_config
-    )
+    audio_format = (
+        speechsdk.SpeechSynthesisOutputFormat.Raw24Khz16BitMonoPcm
+    )  # Explicitly set audio format
+    speech_config.set_speech_synthesis_output_format(audio_format)
+    speech_synthesizer = speechsdk.SpeechSynthesizer(speech_config=speech_config)
     result = speech_synthesizer.speak_text_async(text).get()
 
-    file_path = "output.wav"
-    with open(file_path, "wb") as audio_file:
-        audio_file.write(result.audio_data)
-    return file_path
+    if result.reason == speechsdk.ResultReason.SynthesizingAudioCompleted:
+        return result.audio_data
+    elif result.reason == speechsdk.ResultReason.Canceled:
+        return None
+    else:
+        return None
 
 
 @app.post("/register")
@@ -262,6 +265,8 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
                 return
 
         async def receive_from_gemini():
+            pending_task = None
+            pending_text = ""
             try:
                 while True:
                     if websocket.client_state.value == 3:  # WebSocket.CLOSED
@@ -271,24 +276,52 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
                     msg = await gemini.receive()
                     response = json.loads(msg)
 
-                    # Forward audio data to client
                     try:
                         parts = response["serverContent"]["modelTurn"]["parts"]
-                        for p in parts:
-                            # Check connection state before each send
-                            if websocket.client_state.value == 3:
-                                return
 
-                            if "inlineData" in p:
-                                audio_data = p["inlineData"]["data"]
-                                await websocket.send_json(
-                                    {"type": "audio", "data": audio_data}
-                                )
-                            elif "text" in p:
-                                print(f"Received text: {p['text']}")
-                                await websocket.send_json(
-                                    {"type": "text", "data": p["text"]}
-                                )
+                        if any("inlineData" in p for p in parts):
+                            for p in parts:
+                                if "inlineData" in p:
+                                    audio_data = p["inlineData"]["data"]
+                                    print(audio_data)
+                                    await websocket.send_json(
+                                        {"type": "audio", "data": audio_data}
+                                    )
+                        else:
+                            for p in parts:
+                                if "text" in p:
+                                    pending_text += p["text"]
+                                    if pending_task is not None:
+                                        pending_task.cancel()
+
+                                    async def process_debounced_text():
+                                        nonlocal pending_text, pending_task
+                                        try:
+                                            await asyncio.sleep(3)
+                                            text_to_convert = pending_text
+                                            pending_text = ""
+                                            pending_task = None
+                                            print("text_to_convert", text_to_convert)
+                                            audio_data = tts(
+                                                text_to_convert,
+                                                gemini.config["language"],
+                                            )
+                                            if audio_data:
+                                                encoded_audio = b64.b64encode(
+                                                    audio_data
+                                                ).decode("utf-8")
+                                                await websocket.send_json(
+                                                    {
+                                                        "type": "audio",
+                                                        "data": encoded_audio,
+                                                    }
+                                                )
+                                        except asyncio.CancelledError:
+                                            return
+
+                                    pending_task = asyncio.create_task(
+                                        process_debounced_text()
+                                    )
                     except KeyError:
                         pass
 
