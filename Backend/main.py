@@ -52,9 +52,7 @@ indian_languages = {
 
 def tts(text, language, gender="Male"):
     speech_config.speech_synthesis_voice_name = indian_languages[language][gender]
-    audio_format = (
-        speechsdk.SpeechSynthesisOutputFormat.Raw24Khz16BitMonoPcm
-    )  # Explicitly set audio format
+    audio_format = speechsdk.SpeechSynthesisOutputFormat.Raw24Khz16BitMonoPcm
     speech_config.set_speech_synthesis_output_format(audio_format)
     speech_synthesizer = speechsdk.SpeechSynthesizer(speech_config=speech_config)
     result = speech_synthesizer.speak_text_async(text).get()
