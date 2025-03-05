@@ -505,7 +505,7 @@ async def store_recommendations(request: Request):
 resend.api_key = os.getenv("RESEND_API_KEY")
 
 async def translate_pdf(language: str, email: str):
-    if not f"translated_{language}.pdf" in os.listdir():
+    if f"translated_{language}.pdf" not in os.listdir():
         WHITE = pymupdf.pdfcolor["white"]
         textflags = pymupdf.TEXT_DEHYPHENATE
         to_korean = GoogleTranslator(source="en", target=language)
@@ -540,7 +540,7 @@ async def translate_pdf(language: str, email: str):
             },
         ],
     }
-    email: resend.Email = resend.Email.send(params)
+    email: resend.Email = resend.Emails.send(params)
     return email
     
 
