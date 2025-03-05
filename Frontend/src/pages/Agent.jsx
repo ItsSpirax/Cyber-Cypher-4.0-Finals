@@ -369,15 +369,6 @@ const Agent = () => {
                 setRecommendationSent(false);
             }, 5000);
 
-            // Add a message to the conversation
-            setMessages((prev) => [
-                ...prev,
-                {
-                    content: `I've sent the client ${properties.length} property recommendations based on their requirements.`,
-                    sender: "System",
-                    timestamp: new Date().toISOString(),
-                },
-            ]);
         } catch (error) {
             console.error("Error sending recommendations:", error);
             alert(`Failed to send recommendations: ${error.message}`);
