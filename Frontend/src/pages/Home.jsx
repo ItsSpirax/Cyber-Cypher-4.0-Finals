@@ -5,6 +5,7 @@ import FeatureCard from "@/components/feature-card";
 import { WorldMap } from "@/components/ui/world-map";
 import { useTranslation } from "react-i18next";
 import "@/i18n";
+import { AIChat } from "./components/ai-chat";
 
 const HomePage = () => {
     const { t } = useTranslation();
@@ -294,6 +295,7 @@ const HomePage = () => {
                     </div>
                 </div>
             </footer>
+            <AIChat />
         </div>
     );
 };

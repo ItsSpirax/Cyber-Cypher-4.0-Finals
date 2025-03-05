@@ -7,7 +7,7 @@ import { ToastProvider } from "@/components/ui/toast";
 import Register from "@/pages/Register";
 import Agent from "./pages/Agent";
 import Agreement from "./pages/Agreement";
-import { AIChat } from "./components/ai-chat";
+
 
 function App() {
     return (
@@ -22,7 +22,6 @@ function App() {
                         <Route path="/agent" element={<Agent />} />
                     </Routes>
                 </BrowserRouter>
-                <AIChat />
             </ToastProvider>
         </ThemeProvider>
     );
