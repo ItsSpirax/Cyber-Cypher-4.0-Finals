@@ -420,7 +420,7 @@ const Meet = () => {
                 <div className="flex items-center gap-3">
                     <Sparkles className="h-6 w-6 text-primary" />
                     <h1 className="text-xl font-bold bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-transparent bg-clip-text">
-                        Gemini Voice Chat
+                        HomeConnect Voice Chat
                     </h1>
                 </div>
                 <div className="flex items-center gap-2">
@@ -554,12 +554,12 @@ const Meet = () => {
                                                             : "bg-primary/10"
                                                     } text-primary`}
                                                 >
-                                                    GM
+                                                    HC
                                                 </AvatarFallback>
                                             </Avatar>
                                         </div>
                                         <span className="mt-2 text-sm font-medium">
-                                            Gemini
+                                            HomeConnect
                                         </span>
                                     </div>
                                 </div>
