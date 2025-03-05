@@ -42,7 +42,7 @@ df = load_cleaned_data(db_path)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["cc.mpst.me", "localhost", "localhost:3000", "localhost:8000", "localhost:5173"],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -541,7 +541,6 @@ async def translate_pdf(language: str, email: str):
         ],
     }
     email: resend.Email = resend.Emails.send(params)
-    return email
     
 
 
