@@ -625,8 +625,8 @@ const Agent = () => {
                                             )}
                                             <Avatar className="h-16 w-16 relative z-10">
                                                 <AvatarImage
-                                                    alt="Gemini"
-                                                    src="https://ui-avatars.com/api/?name=Gemini&background=6d28d9&color=fff"
+                                                    alt="Client"
+                                                    src="https://ui-avatars.com/api/?name=Client&background=6d28d9&color=fff"
                                                 />
                                                 <AvatarFallback
                                                     className={`${
@@ -635,12 +635,12 @@ const Agent = () => {
                                                             : "bg-primary/10"
                                                     } text-primary`}
                                                 >
-                                                    HC
+                                                    CL
                                                 </AvatarFallback>
                                             </Avatar>
                                         </div>
                                         <span className="mt-2 text-sm font-medium">
-                                            HomeConnect
+                                            Client
                                         </span>
                                     </div>
                                 </div>
