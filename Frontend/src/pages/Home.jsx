@@ -1,6 +1,6 @@
 import { Link } from "react-router";
 import { Button } from "@/components/ui/button";
-import { Bot, Globe, Home } from "lucide-react";
+import { Bot, Globe, Home, MessageSquare } from "lucide-react";
 import FeatureCard from "@/components/feature-card";
 import { WorldMap } from "@/components/ui/world-map";
 import { useTranslation } from "react-i18next";
@@ -22,14 +22,14 @@ const HomePage = () => {
                     <Link to="/meet">
                         <Button variant="outline" className="hidden sm:flex">
                             {t("header.talkToAgent")}
-                            <Bot className="h-4 w-4" />
+                            <MessageSquare className="h-4 w-4" />
                         </Button>
                     </Link>
                 </div>
             </header>
 
             <section className="container mx-auto px-4 py-20 flex flex-col items-center text-center">
-                <div className="max-w-3xl mx-auto">
+                <div className="max-w-3xl mx-auto w-full">
                     <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-primary to-purple-500 bg-clip-text text-transparent">
                         {t("home.mainHeading")}
                     </h1>
@@ -74,16 +74,9 @@ const HomePage = () => {
                         <Link to="/meet">
                             <Button size="lg" className="w-full sm:w-auto">
                                 {t("home.talkAgentNow")}
-                                <Bot className="h-5 w-5" />
+                                <MessageSquare className="h-5 w-5" />
                             </Button>
                         </Link>
-                        <Button
-                            variant="outline"
-                            size="lg"
-                            className="w-full sm:w-auto"
-                        >
-                            {t("home.browseProperties")}
-                        </Button>
                     </div>
                 </div>
             </section>

@@ -1,11 +1,11 @@
 {
     "header": {
-        "brand": "ఎఐ ఎస్టేట్",
+        "brand": "HomeConnect",
         "talkToAgent": "ఏజెంట్తో మాట్లాడండి"
     },
     "home": {
-        "mainHeading": "భాషా అడ్డంకులు లేని రియల్ ఎస్టేట్",
-        "subheading": "మా ఎఐ ఆధారిత ఏజెంట్లు మీ భాష మాట్లాడతారు, నిజంగా. ఏ భాషలోనైనా, ఎక్కడైనా, మీ కలల ఇల్లును కనుగొనండి.",
+        "mainHeading": "HomeConnect",
+        "subheading": "మీ భాష మాట్లాడు, మీ ఇల్లు కనుగొను",
         "talkAgentNow": "ఇప్పుడే ఏజెంట్తో మాట్లాడండి",
         "browseProperties": "ప్రాపర్టీలను బ్రౌజ్ చేయండి"
     },
@@ -40,7 +40,7 @@
         }
     },
     "footer": {
-        "aiEstate": "ఎఐ ఎస్టేట్",
+        "aiEstate": "HomeConnect",
         "quickLinks": {
             "home": "హోమ్",
             "properties": "ప్రాపర్టీలు",

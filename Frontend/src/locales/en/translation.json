@@ -1,16 +1,16 @@
 {
     "header": {
-        "brand": "AI Estate",
+        "brand": "HomeConnect",
         "talkToAgent": "Talk to an Agent"
     },
     "home": {
-        "mainHeading": "Real Estate Without Language Barriers",
-        "subheading": "Our AI-powered agents speak your language, literally. Find your dream home in any language, anywhere in the world.",
+        "mainHeading": "HomeConnect",
+        "subheading": "Speak your Language, Find your Home",
         "talkAgentNow": "Talk to an Agent Now",
         "browseProperties": "Browse Properties"
     },
     "section": {
-        "speakYourLanguage": "Speak Your Language, Find Your Home",
+        "speakYourLanguage": "Speak your Language, Find your Home",
         "speakYourLanguageDesc": "Our AI agents understand and communicate in over 100 languages, making your property search seamless no matter where you're from."
     },
     "feature": {
@@ -40,7 +40,7 @@
         }
     },
     "footer": {
-        "aiEstate": "AI Estate",
+        "aiEstate": "HomeConnect",
         "quickLinks": {
             "home": "Home",
             "properties": "Properties",

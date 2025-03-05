@@ -1,16 +1,16 @@
 {
     "header": {
-        "brand": "એઆઈ એસ્ટેટ",
+        "brand": "HomeConnect",
         "talkToAgent": "એજન્ટ સાથે વાત કરો"
     },
     "home": {
-        "mainHeading": "ભાષા અવરોધો વિના રિયલ એસ્ટેટ",
-        "subheading": "અમારા એઆઈ-સંચालित એજન્ટ તમારી ભાષા બોલે છે, ખરેખર. કોઈપણ ભાષામાં, ક્યાંયપણ, તમારું સપનાનું ઘર શોધો.",
+        "mainHeading": "HomeConnect",
+        "subheading": "તમારી ભાષા બોલો, તમારું ઘર મેળવો",
         "talkAgentNow": "હમણાં એજન્ટ સાથે વાત કરો",
         "browseProperties": "સંપત્તિઓ જુઓ"
     },
     "section": {
-        "speakYourLanguage": "તમારી ભાષા બોલો, તમારું ઘર શોધો",
+        "speakYourLanguage": "તમારી ભાષા બોલો, તમારું ઘર મેળવો",
         "speakYourLanguageDesc": "અમારા એઆઈ એજન્ટ 100+ ભાષાઓમાં વાત કરે છે, જેથી તમારી સંપત્તિ શોધ સરળ બને."
     },
     "feature": {
@@ -40,7 +40,7 @@
         }
     },
     "footer": {
-        "aiEstate": "એઆઈ એસ્ટેટ",
+        "aiEstate": "HomeConnect",
         "quickLinks": {
             "home": "હોમ",
             "properties": "સંપત્તિઓ",

@@ -1,16 +1,16 @@
 {
     "header": {
-        "brand": "ಎಐ ಎಸ್ಟೇಟ್",
+        "brand": "HomeConnect",
         "talkToAgent": "ಏಜೆಂಟ್ ಜೊತೆ ಮಾತನಾಡಿ"
     },
     "home": {
-        "mainHeading": "ಭಾಷಾ ಅಡಚಣೆಗಳಿಲ್ಲದೆ ರಿಯಲ್ ಎಸ್ಟೇಟ್",
-        "subheading": "ನಮ್ಮ ಎಐ-ಆಧಾರಿತ ಏಜೆಂಟರು ನಿಮ್ಮ ಭಾಷೆಯನ್ನು ಮಾತನಾಡುತ್ತಾರೆ, ನಿಜವಾಗಿಯೂ. ಯಾವುದೇ ಭಾಷೆಯಲ್ಲಿ, ಎಲ್ಲೆಲ್ಲಿ, ನಿಮ್ಮ ಕನಸಿನ ಮನೆ ಹುಡುಕಿ.",
+        "mainHeading": "HomeConnect",
+        "subheading": "ನಿಮ್ಮ ಭಾಷೆ ಮಾತನಾಡಿ, ನಿಮ್ಮ ಮನೆ ಕಂಡುಕೊಳ್ಳಿ",
         "talkAgentNow": "ಈಗ ಏಜೆಂಟ್ ಜೊತೆಗೆ ಮಾತಾಡಿ",
         "browseProperties": "ಪ್ರಾಪರ್ಟಿಗಳನ್ನು ಬ್ರೌಸ್ ಮಾಡಿ"
     },
     "section": {
-        "speakYourLanguage": "ನಿಮ್ಮ ಭಾಷೆ ಮಾತನಾಡಿ, ನಿಮ್ಮ ಮನೆ ಹುಡುಕಿ",
+        "speakYourLanguage": "ನಿಮ್ಮ ಭಾಷೆ ಮಾತನಾಡಿ, ನಿಮ್ಮ ಮನೆ ಕಂಡುಕೊಳ್ಳಿ",
         "speakYourLanguageDesc": "ನಮ್ಮ ಎಐ ಏಜೆಂಟರು 100+ ಭಾಷೆಗಳಲ್ಲಿ ಸಹಾಯ ಮಾಡುತ್ತಾರೆ, ನಿಮ್ಮ ಪ್ರಾಪರ್ಟಿ ಹುಡುಕಲು ಸುಲಭವಾಗುತ್ತದೆ."
     },
     "feature": {
@@ -40,7 +40,7 @@
         }
     },
     "footer": {
-        "aiEstate": "ಎಐ ಎಸ್ಟೇಟ್",
+        "aiEstate": "HomeConnect",
         "quickLinks": {
             "home": "ಮೂಲ ಪುಟ",
             "properties": "ಪ್ರಾಪರ್ಟಿಗಳು",

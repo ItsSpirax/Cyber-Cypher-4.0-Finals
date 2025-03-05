@@ -337,7 +337,12 @@ const Meet = () => {
     const renderPropertyCard = (property) => (
         <Card
             key={property.link || property.id}
-            className="border backdrop-blur-sm overflow-hidden"
+            className="border backdrop-blur-sm overflow-hidden cursor-pointer hover:border-primary/50 transition-colors"
+            onClick={() => {
+                if (property.link) {
+                    window.open(property.link, "_blank", "noopener,noreferrer");
+                }
+            }}
         >
             <CardContent>
                 <div className="flex items-center gap-3">

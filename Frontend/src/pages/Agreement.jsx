@@ -14,17 +14,26 @@ import { Upload, FileText, Loader2 } from "lucide-react";
 
 const Agreement = () => {
     const [selectedFile, setSelectedFile] = useState(null);
-    const [selectedLanguage, setSelectedLanguage] = useState("english");
+    const [selectedLanguage, setSelectedLanguage] = useState("en");
     const [fileName, setFileName] = useState("No file selected");
     const [isUploading, setIsUploading] = useState(false);
 
     const languages = [
-        { value: "english", label: "English" },
-        { value: "spanish", label: "Spanish" },
-        { value: "french", label: "French" },
-        { value: "german", label: "German" },
-        { value: "chinese", label: "Chinese" },
-        { value: "japanese", label: "Japanese" },
+        { value: "en", label: "English" },
+        { value: "en-IN", label: "English (India)" },
+        { value: "en-US", label: "English (US)" },
+        { value: "as", label: "Assamese" },
+        { value: "bn", label: "Bengali" },
+        { value: "gu", label: "Gujarati" },
+        { value: "hi", label: "Hindi" },
+        { value: "kn", label: "Kannada" },
+        { value: "ml", label: "Malayalam" },
+        { value: "mr", label: "Marathi" },
+        { value: "or", label: "Odia" },
+        { value: "pa", label: "Punjabi" },
+        { value: "ta", label: "Tamil" },
+        { value: "te", label: "Telugu" },
+        { value: "ur", label: "Urdu" },
     ];
 
     const uploadFile = async () => {

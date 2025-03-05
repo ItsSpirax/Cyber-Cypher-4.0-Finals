@@ -1,16 +1,16 @@
 {
     "header": {
-        "brand": "AI Estate",
+        "brand": "HomeConnect",
         "talkToAgent": "Habla con un Agente"
     },
     "home": {
-        "mainHeading": "Bienes Raíces Sin Barreras de Idioma",
-        "subheading": "Nuestros agentes impulsados por IA hablan tu idioma, literalmente. Encuentra la casa de tus sueños en cualquier idioma y en cualquier parte del mundo.",
+        "mainHeading": "HomeConnect",
+        "subheading": "Habla tu Idioma, Encuentra tu Hogar",
         "talkAgentNow": "Habla con un Agente Ahora",
         "browseProperties": "Explorar Propiedades"
     },
     "section": {
-        "speakYourLanguage": "Habla Tu Idioma, Encuentra Tu Hogar",
+        "speakYourLanguage": "Habla tu Idioma, Encuentra tu Hogar",
         "speakYourLanguageDesc": "Nuestros agentes de IA entienden y se comunican en más de 100 idiomas, haciendo tu búsqueda de propiedad más fácil sin importar de dónde seas."
     },
     "feature": {
@@ -40,7 +40,7 @@
         }
     },
     "footer": {
-        "aiEstate": "AI Estate",
+        "aiEstate": "HomeConnect",
         "quickLinks": {
             "home": "Inicio",
             "properties": "Propiedades",
