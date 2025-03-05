@@ -15,6 +15,7 @@ export default defineConfig((mode) => {
         define: {
             "process.env.LIVE_URL": JSON.stringify(env.LIVE_URL),
             "process.env.SERVER_URL": JSON.stringify(env.SERVER_URL),
+            "process.env.GOOGLE_AI_KEY": JSON.stringify(env.GOOGLE_AI_KEY),
         },
     };
 });

@@ -15,9 +15,9 @@ import {
 import { ChatMessageList } from "@/components/ui/chat-message-list";
 import { Textarea } from "./ui/textarea";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { Input } from "./ui/input";
 
-const GOOGLE_AI_KEY = process.env.GOOGLE_API_KEY;
-console.log(GOOGLE_AI_KEY);
+const GOOGLE_AI_KEY = process.env.GOOGLE_AI_KEY;
 
 export function AIChat() {
     const [messages, setMessages] = useState([]);
@@ -50,7 +50,7 @@ export function AIChat() {
                 systemInstruction: {
                     parts: [
                         {
-                            text: "You are StartupSensei, an AI-powered virtual mentor for solo founders. Your goal is to guide entrepreneurs through the challenges of building a startup, from ideation to scaling. You are knowledgeable, empathetic, and action-oriented, providing practical advice, resources, and encouragement.",
+                            text: "You are a chatbot which helps users with respect to real-estate queries. Do not answer about anything except those.",
                         },
                     ],
                 },
@@ -157,12 +157,11 @@ export function AIChat() {
                         onSubmit={handleSubmit}
                         className="relative flex flex-row rounded-lg border bg-background p-1"
                     >
-                        <Textarea
+                        <Input
                             value={input}
                             onChange={(e) => setInput(e.target.value)}
                             placeholder="Type your message..."
-                            maxLines={2}
-                            className="min-h-12 resize-none bg-background border-0 shadow-none"
+                            className="min-h-12 resize-none bg-background border-0 shadow-none focus-visible:ring-0"
                         />
                         <Button
                             type="submit"
