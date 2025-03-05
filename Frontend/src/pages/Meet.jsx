@@ -768,12 +768,7 @@ const Meet = () => {
                                                         }`}
                                                     >
                                                         <div
-                                                            className={`max-w-[80%] p-3 rounded-lg bg-white text-black ${
-                                                                msg.sender ===
-                                                                "You"
-                                                                    ? "text-primary-foreground"
-                                                                    : "text-foreground"
-                                                            }`}
+                                                            className={`max-w-[80%] p-3 rounded-lg bg-white text-black`}
                                                         >
                                                             <p className="text-sm">
                                                                 {msg.content}
