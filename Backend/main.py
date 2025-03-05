@@ -18,7 +18,6 @@ from websockets import connect
 import base64 as b64
 from pydantic import BaseModel
 
-# Import from retrieval.py
 from retrieval import (
     extract_keywords_from_text,
     find_similar_properties,
@@ -27,8 +26,16 @@ from retrieval import (
 import io
 import uuid
 from azure.identity import DefaultAzureCredential
-from azure.storage.blob import BlobServiceClient, ContainerClient, BlobBlock, BlobClient, StandardBlobTier
-
+from azure.storage.blob import (
+    BlobServiceClient,
+    ContainerClient,
+    BlobBlock,
+    BlobClient,
+    StandardBlobTier,
+)
+import os
+from fastapi import FastAPI, UploadFile, File
+from azure.storage.blob import BlobServiceClient
 
 load_dotenv()
 
@@ -39,6 +46,13 @@ speech_config = speechsdk.SpeechConfig(
 )
 mongo_client = MongoClient(os.getenv("MONGO_URI"))
 db = mongo_client.estate_agent
+blob_service_client = BlobServiceClient.from_connection_string(
+    os.getenv("AZURE_STORAGE_CONNECTION_STRING"),
+    credential=os.getenv("AZURE_STORAGE_API_KEY"),
+)
+container_client = blob_service_client.get_container_client("pdfs")
+if not container_client.exists():
+    container_client.create_container()
 
 db_path = "data/property_data.db"
 df = load_cleaned_data(db_path)
@@ -126,26 +140,13 @@ async def register(name: str, no: str, gender: str, email: str):
 
 @app.post("/upload")
 async def upload(file: UploadFile = File(...)):
-    try:
-        blob_service_client = BlobServiceClient.from_connection_string(
-            os.getenv("AZURE_STORAGE_CONNECTION_STRING")
-        )
-        container_name = "pdfs"
-        container_client = blob_service_client.get_container_client(container_name)
-
-        if not container_client.exists():
-            container_client.create_container()
-
-        filename = file.filename
-        blob_client = container_client.get_blob_client(filename)
-        await blob_client.upload_blob(await file.read(), overwrite=True)
-
-        blob_uri = f"https://{blob_service_client.account_name}.blob.core.windows.net/{container_name}/{filename}"
-
-        return {"status": "success", "uri": blob_uri}
-
-    except Exception as e:
-        return {"status": "error", "message": str(e)}
+    blob_client = blob_service_client.get_blob_client(
+        container="pdfs", blob=file.filename
+    )
+    data = await file.read()
+    res = blob_client.upload_blob(data, overwrite=True)
+    print(res)
+    return {"filename": file.filename}
 
 
 @app.post("/verify")

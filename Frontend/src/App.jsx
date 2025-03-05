@@ -6,7 +6,7 @@ import HomePage from "./pages/Home";
 import { ToastProvider } from "@/components/ui/toast";
 import Register from "@/pages/Register";
 import Agent from "./pages/Agent";
-import Agreement from "./pages/Agreeement";
+import Agreement from "./pages/Agreement";
 
 function App() {
     return (

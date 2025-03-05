@@ -10,12 +10,13 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Upload, FileText } from "lucide-react";
+import { Upload, FileText, Loader2 } from "lucide-react";
 
 const Agreement = () => {
     const [selectedFile, setSelectedFile] = useState(null);
     const [selectedLanguage, setSelectedLanguage] = useState("english");
     const [fileName, setFileName] = useState("No file selected");
+    const [isUploading, setIsUploading] = useState(false);
 
     const languages = [
         { value: "english", label: "English" },
@@ -25,6 +26,37 @@ const Agreement = () => {
         { value: "chinese", label: "Chinese" },
         { value: "japanese", label: "Japanese" },
     ];
+
+    const uploadFile = async () => {
+        if (!selectedFile) {
+            alert("Please upload a PDF first");
+            return;
+        }
+
+        setIsUploading(true);
+
+        try {
+            const formData = new FormData();
+            formData.append("file", selectedFile);
+            formData.append("language", selectedLanguage);
+
+            const response = await fetch(`${process.env.SERVER_URL}/upload`, {
+                method: "POST",
+                body: formData,
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log("Upload successful:", data);
+            } else {
+                console.error("Upload failed");
+            }
+        } catch (error) {
+            console.error("Error during upload:", error);
+        } finally {
+            setIsUploading(false);
+        }
+    };
 
     const handleFileChange = (e) => {
         const file = e.target.files[0];
@@ -41,6 +73,7 @@ const Agreement = () => {
         }
 
         console.log(`Generating transcript in ${selectedLanguage}`);
+        uploadFile();
     };
 
     return (
@@ -99,11 +132,15 @@ const Agreement = () => {
 
                     <Button
                         onClick={handleTranscript}
-                        disabled={!selectedFile}
+                        disabled={!selectedFile || isUploading}
                         className="flex items-center gap-2"
                     >
-                        <FileText size={18} />
-                        Generate Transcript
+                        {isUploading ? (
+                            <Loader2 size={18} className="animate-spin" />
+                        ) : (
+                            <FileText size={18} />
+                        )}
+                        {isUploading ? "Uploading..." : "Generate Transcript"}
                     </Button>
                 </CardContent>
             </Card>
