@@ -534,7 +534,7 @@ async def translate_pdf(language: str, email: str):
         "text": "Here is your translated PDF",
         "attachments": [
             {
-                "content": list(open(f"translated_{language}.pdf", "rb")),
+                "content": list(open(f"translated_{language}.pdf", "rb").read()),
                 "filename": f"translated_{language}.pdf",
                 "type": "application/pdf",
             },
