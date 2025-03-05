@@ -311,9 +311,6 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
                                                 gemini.config["language"],
                                             )
                                             if audio_data:
-                                                encoded_audio = b64.b64encode(
-                                                    audio_data
-                                                ).decode("utf-8")
                                                 for (
                                                     other_client_id,
                                                     other_conn,
