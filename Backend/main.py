@@ -23,12 +23,6 @@ from retrieval import (
     find_similar_properties,
     load_cleaned_data,
 )
-from azure.storage.blob import (
-    BlobServiceClient,
-)
-import os
-from fastapi import FastAPI, UploadFile, File
-from azure.storage.blob import BlobServiceClient
 
 load_dotenv()
 
@@ -129,18 +123,6 @@ async def register(name: str, no: str, gender: str, email: str):
         content_variables='{"1":"' + str(otp) + '"}',
     )
     return {"status": "success"}
-
-
-@app.post("/upload")
-async def upload(file: UploadFile = File(...)):
-    blob_client = blob_service_client.get_blob_client(
-        container="pdfs", blob=file.filename
-    )
-    data = await file.read()
-    res = blob_client.upload_blob(data, overwrite=True)
-    print(res)
-    return {"filename": file.filename}
-
 
 @app.post("/verify")
 async def verify(no: str, otp: int):
