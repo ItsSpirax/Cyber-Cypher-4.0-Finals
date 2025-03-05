@@ -73,13 +73,13 @@ const HomePage = () => {
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
                         <Link to="/meet">
                             <Button size="lg" className="w-full sm:w-auto">
-                                {t("home.talkToAgent")}
+                                {t("home.talkAsUser")}
                                 <MessageSquare className="h-5 w-5" />
                             </Button>
                         </Link>
                         <Link to="/agent">
                             <Button size="lg" className="w-full sm:w-auto">
-                                {t("home.talkAsAgent")}
+                                {t("home.talkAgentNow")}
                                 <MessageSquare className="h-5 w-5" />
                             </Button>
                         </Link>
