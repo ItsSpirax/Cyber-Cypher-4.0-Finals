@@ -209,7 +209,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
     try:
         # Create new Gemini connection for this client
         gemini = GeminiConnection()
-        connections[client_id] = {"gemini": gemini, "config": None}
+        connections[client_id] = {"ws": websocket, "config": None}
 
         # Wait for initial configuration
         config_data = await websocket.receive_json()
@@ -314,25 +314,35 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
                                                 encoded_audio = b64.b64encode(
                                                     audio_data
                                                 ).decode("utf-8")
-                                                await websocket.send_json(
-                                                    {
-                                                        "type": "audio",
-                                                        "data": encoded_audio,
-                                                    }
-                                                )
+                                                # await websocket.send_json(
+                                                #     {
+                                                #         "type": "audio",
+                                                #         "data": encoded_audio,
+                                                #     }
+                                                # )
                                                 # Send translated audio to the opposite client
-                                                for other_client_id, other_conn in connections.items():
+                                                for (
+                                                    other_client_id,
+                                                    other_conn,
+                                                ) in connections.items():
+                                                    print(other_conn)
                                                     if other_client_id != client_id:
-                                                        other_language = other_conn["config"]["language"]
+                                                        other_language = other_conn[
+                                                            "config"
+                                                        ]["language"]
                                                         translated_audio = tts(
                                                             text_to_convert,
                                                             other_language,
                                                         )
                                                         if translated_audio:
-                                                            encoded_translated_audio = b64.b64encode(
-                                                                translated_audio
-                                                            ).decode("utf-8")
-                                                            await other_conn["gemini"].ws.send_json(
+                                                            encoded_translated_audio = (
+                                                                b64.b64encode(
+                                                                    translated_audio
+                                                                ).decode("utf-8")
+                                                            )
+                                                            await other_conn[
+                                                                "ws"
+                                                            ].send_json(
                                                                 {
                                                                     "type": "audio",
                                                                     "data": encoded_translated_audio,
@@ -368,7 +378,6 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
     finally:
         # Cleanup
         if client_id in connections:
-            await connections[client_id]["gemini"].close()
             del connections[client_id]
 
 
