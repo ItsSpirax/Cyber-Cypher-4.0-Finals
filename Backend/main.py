@@ -9,6 +9,7 @@ import azure.cognitiveservices.speech as speechsdk
 from dotenv import load_dotenv
 from fastapi import FastAPI, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
+import google.generativeai as genai
 from pymongo import MongoClient
 from twilio.rest import Client
 from websockets import connect
@@ -68,6 +69,16 @@ def tts(text, language, gender="Male"):
     else:
         return None
 
+def translate(language1, language2, text):
+    genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+
+    model = genai.GenerativeModel("gemini-2.0-flash-exp")
+
+    prompt = f"Translate the following {language1} text to {language2} and provide only the final text as the output nothing else: {text}"
+
+    response = model.generate_content(prompt)
+
+    return response.text
 
 @app.post("/register")
 async def register(name: str, no: str, gender: str):
@@ -305,7 +316,6 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
                                             text_to_convert = pending_text
                                             pending_text = ""
                                             pending_task = None
-                                            print("text_to_convert", text_to_convert)
                                             audio_data = tts(
                                                 text_to_convert,
                                                 gemini.config["language"],
@@ -315,13 +325,19 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
                                                     other_client_id,
                                                     other_conn,
                                                 ) in connections.items():
-                                                    print(other_client_id, other_conn)
                                                     if other_client_id != client_id:
                                                         other_language = other_conn[
                                                             "config"
                                                         ]["language"]
+                                                        translated_text = translate(
+                                                                gemini.config["language"],
+                                                                other_language,
+                                                                text_to_convert,
+                                                            )
+                                                        print(f"Original Message {gemini.config["language"]}: " + text_to_convert)
+                                                        print(f"Translated Text {other_language}: " + translated_text)
                                                         translated_audio = tts(
-                                                            text_to_convert,
+                                                            translated_text,
                                                             other_language,
                                                         )
                                                         if translated_audio:
@@ -343,7 +359,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
                                                             ].send_json(
                                                                 {
                                                                     "type": "text",
-                                                                    "data": text_to_convert,
+                                                                    "data": translated_text,
                                                                 }
                                                             )
                                         except asyncio.CancelledError:
