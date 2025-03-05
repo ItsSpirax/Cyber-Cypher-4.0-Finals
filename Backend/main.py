@@ -70,7 +70,7 @@ def tts(text, language, gender="Male"):
         return None
 
 def translate(language1, language2, text):
-    genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+    genai.configure(api_key=os.getenv("GEMINI_API_KEY_1"))
 
     model = genai.GenerativeModel("gemini-2.0-flash-exp")
 
