@@ -42,7 +42,7 @@ df = load_cleaned_data(db_path)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["cc.mpst.me", "localhost", "localhost:3000", "localhost:8000", "localhost:5173"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
