@@ -8,7 +8,7 @@ from typing import Dict
 
 import azure.cognitiveservices.speech as speechsdk
 from dotenv import load_dotenv
-from fastapi import FastAPI, WebSocket, Request, HTTPException
+from fastapi import FastAPI, WebSocket, Request
 from fastapi import FastAPI, File, UploadFile, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 import google.generativeai as genai
@@ -23,12 +23,6 @@ from retrieval import (
     find_similar_properties,
     load_cleaned_data,
 )
-from azure.storage.blob import (
-    BlobServiceClient,
-)
-import os
-from fastapi import FastAPI, UploadFile, File
-from azure.storage.blob import BlobServiceClient
 
 load_dotenv()
 
@@ -39,13 +33,6 @@ speech_config = speechsdk.SpeechConfig(
 )
 mongo_client = MongoClient(os.getenv("MONGO_URI"))
 db = mongo_client.estate_agent
-blob_service_client = BlobServiceClient.from_connection_string(
-    os.getenv("AZURE_STORAGE_CONNECTION_STRING"),
-    credential=os.getenv("AZURE_STORAGE_API_KEY"),
-)
-container_client = blob_service_client.get_container_client("pdfs")
-if not container_client.exists():
-    container_client.create_container()
 
 db_path = "data/property_data.db"
 df = load_cleaned_data(db_path)
@@ -129,18 +116,6 @@ async def register(name: str, no: str, gender: str, email: str):
         content_variables='{"1":"' + str(otp) + '"}',
     )
     return {"status": "success"}
-
-
-@app.post("/upload")
-async def upload(file: UploadFile = File(...)):
-    blob_client = blob_service_client.get_blob_client(
-        container="pdfs", blob=file.filename
-    )
-    data = await file.read()
-    res = blob_client.upload_blob(data, overwrite=True)
-    print(res)
-    return {"filename": file.filename}
-
 
 @app.post("/verify")
 async def verify(no: str, otp: int):
