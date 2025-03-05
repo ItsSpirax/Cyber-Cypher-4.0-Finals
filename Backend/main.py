@@ -520,7 +520,7 @@ async def translate_pdf(language: str, email: str):
 
                 korean = to_korean.translate(text)
 
-                page.draw_rect(bbox, fill=WHITE, ocg=ocg_xref)
+                page.draw_rect(bbox, fill=WHITE, oc=ocg_xref)
 
                 page.insert_htmlbox(bbox, korean, css="* {font-family: sans-serif;}", oc=ocg_xref)
         doc.subset_fonts()
