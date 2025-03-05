@@ -11,12 +11,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Upload, FileText, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 const Agreement = () => {
     const [selectedFile, setSelectedFile] = useState(null);
     const [selectedLanguage, setSelectedLanguage] = useState("en");
     const [fileName, setFileName] = useState("No file selected");
     const [isUploading, setIsUploading] = useState(false);
+    const [email, setEmail] = useState("");
 
     const languages = [
         { value: "en", label: "English" },
@@ -42,12 +44,18 @@ const Agreement = () => {
             return;
         }
 
+        if (!email) {
+            alert("Please enter your email");
+            return;
+        }
+
         setIsUploading(true);
 
         try {
             const formData = new FormData();
             formData.append("file", selectedFile);
             formData.append("language", selectedLanguage);
+            formData.append("email", email);
 
             const response = await fetch(`${process.env.SERVER_URL}/upload`, {
                 method: "POST",
@@ -57,11 +65,16 @@ const Agreement = () => {
             if (response.ok) {
                 const data = await response.json();
                 console.log("Upload successful:", data);
+                toast.success(
+                    "Document uploaded successfully! We'll send the translated document to your email.",
+                );
             } else {
                 console.error("Upload failed");
+                toast.error("Failed to upload document. Please try again.");
             }
         } catch (error) {
             console.error("Error during upload:", error);
+            toast.error("An error occurred. Please try again later.");
         } finally {
             setIsUploading(false);
         }
@@ -81,19 +94,36 @@ const Agreement = () => {
             return;
         }
 
+        if (!email) {
+            alert("Please enter your email");
+            return;
+        }
+
         console.log(`Generating transcript in ${selectedLanguage}`);
         uploadFile();
     };
 
     return (
-        <div className="container mx-auto py-10">
-            <Card>
+        <div className="mx-auto w-min flex h-screen align-middle">
+            <Card className="my-auto">
                 <CardHeader>
                     <CardTitle className="text-2xl">
                         Document Agreement
                     </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
+                    <div className="space-y-2">
+                        <Label htmlFor="email">Email</Label>
+                        <Input
+                            type="email"
+                            id="email"
+                            placeholder="Enter your email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            className="w-full md:w-[300px]"
+                        />
+                    </div>
+
                     <div className="space-y-2">
                         <Label htmlFor="language">Select Language</Label>
                         <Select
@@ -149,7 +179,7 @@ const Agreement = () => {
                         ) : (
                             <FileText size={18} />
                         )}
-                        {isUploading ? "Uploading..." : "Generate Transcript"}
+                        {isUploading ? "Uploading..." : "Translate"}
                     </Button>
                 </CardContent>
             </Card>
