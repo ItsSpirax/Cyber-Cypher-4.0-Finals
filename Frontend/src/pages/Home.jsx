@@ -77,6 +77,12 @@ const HomePage = () => {
                                 <MessageSquare className="h-5 w-5" />
                             </Button>
                         </Link>
+                        <Link to="/agent">
+                            <Button size="lg" className="w-full sm:w-auto">
+                                {t("home.talkAgentNow")}
+                                <MessageSquare className="h-5 w-5" />
+                            </Button>
+                        </Link>
                     </div>
                 </div>
             </section>
