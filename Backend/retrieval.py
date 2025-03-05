@@ -18,7 +18,7 @@ def preprocess_data(df):
     return df
 
 
-def save_cleaned_data(csv_path, db_path="property_data.db"):
+def save_cleaned_data(csv_path, db_path="data/property_data.db"):
     """Loads raw CSV, preprocesses data, and stores it in SQLite."""
     raw_df = pd.read_csv(csv_path)
     df_cleaned = preprocess_data(raw_df)
@@ -28,7 +28,7 @@ def save_cleaned_data(csv_path, db_path="property_data.db"):
     print("Data cleaned and saved successfully!")
 
 
-def load_cleaned_data(db_path="property_data.db"):
+def load_cleaned_data(db_path="data/property_data.db"):
     """Loads cleaned property data from SQLite."""
     conn = sqlite3.connect(db_path)
     df = pd.read_sql("SELECT * FROM properties", conn)
@@ -99,7 +99,7 @@ def find_similar_properties(df, user_size, user_price, user_location, user_ameni
 
 
 if __name__ == "__main__":
-    db_path = "property_data.db"
+    db_path = "data/property_data.db"
     df = load_cleaned_data(db_path)
 
     user_size, user_price, user_location, user_amenities = get_user_input()

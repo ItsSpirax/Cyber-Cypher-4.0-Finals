@@ -81,11 +81,12 @@ def translate(language1, language2, text):
     return response.text
 
 @app.post("/register")
-async def register(name: str, no: str, gender: str):
+async def register(name: str, no: str, gender: str, email: str):
     otp = random.randint(100000, 999999)
     db.users.insert_one(
         {
             "name": name,
+            "email": email,
             "no": no,
             "gender": gender,
             "otp": otp,
