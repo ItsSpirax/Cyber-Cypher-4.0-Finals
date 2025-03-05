@@ -22,7 +22,6 @@ const HomePage = () => {
                     <Link to="/register">
                         <Button variant="outline" className="hidden sm:flex">
                             Register
-                            <MessageSquare className="h-4 w-4" />
                         </Button>
                     </Link>
                 </div>
