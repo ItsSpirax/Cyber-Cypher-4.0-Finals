@@ -19,10 +19,9 @@ const HomePage = () => {
                     </span>
                 </div>
                 <div className="flex items-center gap-4">
-                    <Link to="/meet">
+                    <Link to="/register">
                         <Button variant="outline" className="hidden sm:flex">
-                            {t("header.talkToAgent")}
-                            <MessageSquare className="h-4 w-4" />
+                            Register
                         </Button>
                     </Link>
                 </div>
