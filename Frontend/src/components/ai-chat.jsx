@@ -13,7 +13,7 @@ import {
     ExpandableChatFooter,
 } from "@/components/ui/expandable-chat";
 import { ChatMessageList } from "@/components/ui/chat-message-list";
-import { Textarea } from "../ui/textarea";
+import { Textarea } from "./ui/textarea";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const GOOGLE_AI_KEY = process.env.GOOGLE_API_KEY;
