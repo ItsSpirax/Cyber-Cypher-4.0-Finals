@@ -298,7 +298,6 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
                             for p in parts:
                                 if "inlineData" in p:
                                     audio_data = p["inlineData"]["data"]
-                                    print(audio_data)
                                     await websocket.send_json(
                                         {"type": "audio", "data": audio_data}
                                     )
@@ -316,52 +315,51 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
                                             text_to_convert = pending_text
                                             pending_text = ""
                                             pending_task = None
-                                            audio_data = tts(
-                                                text_to_convert,
-                                                gemini.config["language"],
+                                            await websocket.send_json(
+                                                {"type": "text", "data": text_to_convert}
                                             )
-                                            if audio_data:
-                                                for (
-                                                    other_client_id,
-                                                    other_conn,
-                                                ) in connections.items():
-                                                    if other_client_id != client_id:
-                                                        other_language = other_conn[
-                                                            "config"
-                                                        ]["language"]
-                                                        translated_text = translate(
-                                                                gemini.config["language"],
-                                                                other_language,
-                                                                text_to_convert,
-                                                            )
-                                                        print(f"Original Message {gemini.config["language"]}: " + text_to_convert)
-                                                        print(f"Translated Text {other_language}: " + translated_text)
-                                                        translated_audio = tts(
-                                                            translated_text,
+                                                
+                                            for (
+                                                other_client_id,
+                                                other_conn,
+                                            ) in connections.items():
+                                                if other_client_id != client_id:
+                                                    other_language = other_conn[
+                                                        "config"
+                                                    ]["language"]
+                                                    translated_text = translate(
+                                                            gemini.config["language"],
                                                             other_language,
+                                                            text_to_convert,
                                                         )
-                                                        if translated_audio:
-                                                            encoded_translated_audio = (
-                                                                b64.b64encode(
-                                                                    translated_audio
-                                                                ).decode("utf-8")
-                                                            )
-                                                            await other_conn[
-                                                                "ws"
-                                                            ].send_json(
-                                                                {
-                                                                    "type": "audio",
-                                                                    "data": encoded_translated_audio,
-                                                                }
-                                                            )
-                                                            await other_conn[
-                                                                "ws"
-                                                            ].send_json(
-                                                                {
-                                                                    "type": "text",
-                                                                    "data": translated_text,
-                                                                }
-                                                            )
+                                                    print(f"Original Message {gemini.config["language"]}: " + text_to_convert)
+                                                    print(f"Translated Text {other_language}: " + translated_text)
+                                                    translated_audio = tts(
+                                                        translated_text,
+                                                        other_language,
+                                                    )
+                                                    if translated_audio:
+                                                        encoded_translated_audio = (
+                                                            b64.b64encode(
+                                                                translated_audio
+                                                            ).decode("utf-8")
+                                                        )
+                                                        await other_conn[
+                                                            "ws"
+                                                        ].send_json(
+                                                            {
+                                                                "type": "audio",
+                                                                "data": encoded_translated_audio,
+                                                            }
+                                                        )
+                                                        await other_conn[
+                                                            "ws"
+                                                        ].send_json(
+                                                            {
+                                                                "type": "text",
+                                                                "data": translated_text,
+                                                            }
+                                                        )
                                         except asyncio.CancelledError:
                                             return
 

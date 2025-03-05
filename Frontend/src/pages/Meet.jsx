@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { base64ToFloat32Array, float32ToPcm16 } from "@/lib/utils";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const Meet = () => {
     const [isStreaming, setIsStreaming] = useState(false);
@@ -46,6 +47,8 @@ const Meet = () => {
     const analyserRef = useRef(null);
     const animationFrameRef = useRef(null);
     const [text, setText] = useState("");
+    const [messages, setMessages] = useState([]);
+    const chatEndRef = useRef(null);
 
     let audioBuffer = [];
     let isPlaying = false;
@@ -69,6 +72,12 @@ const Meet = () => {
     useEffect(() => {
         console.log(text);
     }, [text]);
+
+    useEffect(() => {
+        if (chatEndRef.current) {
+            chatEndRef.current.scrollIntoView({ behavior: "smooth" });
+        }
+    }, [messages]);
 
     const startStream = async () => {
         wsRef.current = new WebSocket(
@@ -97,7 +106,15 @@ const Meet = () => {
                 setGeminiSpeaking(true);
                 playAudioData(audioData);
             } else if (response.type === "text") {
-                setText((prev) => prev + response.text + "\n");
+                setText((prev) => prev + response.data + "\n");
+                setMessages(prev => [
+                    ...prev, 
+                    { 
+                        content: response.data, 
+                        sender: geminiSpeaking ? "gemini" : "user",
+                        timestamp: new Date().toISOString()
+                    }
+                ]);
             }
         };
 
@@ -463,14 +480,57 @@ const Meet = () => {
                 </div>
 
                 <div className="w-2/3 p-4 flex flex-col">
-                    <div className="flex-grow flex items-center justify-center text-muted-foreground opacity-50">
-                        <div className="text-center">
-                            <MessageSquare className="h-12 w-12 mx-auto mb-2" />
-                            <h2 className="text-lg font-medium">Chat Panel</h2>
-                            <p className="text-sm">
-                                Future content will appear here
-                            </p>
-                        </div>
+                    <div className="flex-1 mb-4">
+                        <Card className="h-full border border-border/40 bg-card/50 backdrop-blur-sm overflow-hidden">
+                            <CardContent className="p-4 h-full">
+                                <ScrollArea className="h-full">
+                                    <div className="space-y-4 pb-4">
+                                        {messages.length === 0 ? (
+                                            <div className="h-full flex items-center justify-center text-muted-foreground opacity-50">
+                                                <div className="text-center">
+                                                    <MessageSquare className="h-12 w-12 mx-auto mb-2" />
+                                                    <h2 className="text-lg font-medium">Start Speaking</h2>
+                                                    <p className="text-sm">
+                                                        Messages will appear here
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            messages.map((msg, index) => (
+                                                <div 
+                                                    key={index}
+                                                    className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"}`}
+                                                >
+                                                    <div 
+                                                        className={`max-w-[80%] p-3 rounded-lg ${
+                                                            msg.sender === "user" 
+                                                                ? "bg-primary/20 text-primary-foreground" 
+                                                                : "bg-muted/50 text-foreground"
+                                                        }`}
+                                                    >
+                                                        <div className="flex items-center gap-2 mb-1">
+                                                            <Avatar className="h-6 w-6">
+                                                                <AvatarFallback className={msg.sender === "user" ? "bg-primary/40" : "bg-indigo-500/40"}>
+                                                                    {msg.sender === "user" ? "U" : "G"}
+                                                                </AvatarFallback>
+                                                            </Avatar>
+                                                            <span className="text-xs font-medium">
+                                                                {msg.sender === "user" ? "You" : "Gemini"}
+                                                            </span>
+                                                        </div>
+                                                        <p className="text-sm">{msg.content}</p>
+                                                        <span className="text-xs text-muted-foreground block text-right mt-1">
+                                                            {new Date(msg.timestamp).toLocaleTimeString()}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            ))
+                                        )}
+                                        <div ref={chatEndRef} />
+                                    </div>
+                                </ScrollArea>
+                            </CardContent>
+                        </Card>
                     </div>
                 </div>
             </div>
