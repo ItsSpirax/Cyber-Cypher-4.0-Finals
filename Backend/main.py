@@ -6,6 +6,7 @@ import tempfile
 import datetime
 from typing import Dict
 
+import resend
 import azure.cognitiveservices.speech as speechsdk
 from dotenv import load_dotenv
 from fastapi import FastAPI, WebSocket, Request
@@ -17,6 +18,8 @@ from twilio.rest import Client
 from websockets import connect
 import base64 as b64
 from pydantic import BaseModel
+import pymupdf
+from deep_translator import GoogleTranslator
 
 from retrieval import (
     extract_keywords_from_text,
@@ -64,6 +67,23 @@ indian_languages = {
     "en": {"Female": "en-IN-AashiNeural", "Male": "en-IN-AaravNeural"},
 }
 
+short_code = {
+    "en": "English",
+    "en-IN": "English (India)",
+    "en-US": "English (United States)",
+    "as": "Assamese",
+    "bn": "Bengali",
+    "gu": "Gujarati",
+    "hi": "Hindi",
+    "kn": "Kannada",
+    "ml": "Malayalam",
+    "mr": "Marathi",
+    "or": "Odia",
+    "pa": "Punjabi",
+    "ta": "Tamil",
+    "te": "Telugu",
+    "ur": "Urdu",
+}
 
 def tts(text, language, gender="Male"):
     speech_config.speech_synthesis_voice_name = indian_languages[language][gender]
@@ -481,6 +501,57 @@ async def store_recommendations(request: Request):
         "status": "success",
         "message": f"Recommendations sent to {len(user_clients)} users",
     }
+
+resend.api_key = os.getenv("RESEND_API_KEY")
+
+async def translate_pdf(language: str, email: str):
+    if not f"translated_{language}.pdf" in os.listdir():
+        WHITE = pymupdf.pdfcolor["white"]
+        textflags = pymupdf.TEXT_DEHYPHENATE
+        to_korean = GoogleTranslator(source="en", target=language)
+        doc = pymupdf.open("temp.pdf")
+        ocg_xref = doc.add_ocg(short_code[language], on=True)
+
+        for page in doc:
+            blocks = page.get_text("blocks", flags=textflags)
+            for block in blocks:
+                bbox = block[:4]
+                text = block[4] 
+
+                korean = to_korean.translate(text)
+
+                page.draw_rect(bbox, fill=WHITE, ocg=ocg_xref)
+
+                page.insert_htmlbox(bbox, korean, css="* {font-family: sans-serif;}", oc=ocg_xref)
+        doc.subset_fonts()
+        doc.ez_save(f"translated_{language}.pdf")
+
+    # Resend
+    params: resend.Emails.SendParams = {
+        "from": os.getenv("RESEND_EMAIL"),
+        "to": email,
+        "subject": "Translated PDF",
+        "text": "Here is your translated PDF",
+        "attachments": [
+            {
+                "content": list(open(f"translated_{language}.pdf", "rb")),
+                "filename": f"translated_{language}.pdf",
+                "type": "application/pdf",
+            },
+        ],
+    }
+    email: resend.Email = resend.Email.send(params)
+    return email
+    
+
+
+@app.post("/upload")
+def upload_file(file: UploadFile = File(...), language: str = "en", email: str = None):
+    file.filename = "temp.pdf"
+    with open(file.filename, "wb") as f:
+        f.write(file.file.read())
+    asyncio.run(translate_pdf(language, email))
+    return {"success": True}
 
 
 if __name__ == "__main__":
