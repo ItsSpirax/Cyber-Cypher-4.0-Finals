@@ -33,13 +33,6 @@ speech_config = speechsdk.SpeechConfig(
 )
 mongo_client = MongoClient(os.getenv("MONGO_URI"))
 db = mongo_client.estate_agent
-blob_service_client = BlobServiceClient.from_connection_string(
-    os.getenv("AZURE_STORAGE_CONNECTION_STRING"),
-    credential=os.getenv("AZURE_STORAGE_API_KEY"),
-)
-container_client = blob_service_client.get_container_client("pdfs")
-if not container_client.exists():
-    container_client.create_container()
 
 db_path = "data/property_data.db"
 df = load_cleaned_data(db_path)
