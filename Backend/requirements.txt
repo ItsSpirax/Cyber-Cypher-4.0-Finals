@@ -12,5 +12,5 @@ websockets==13.1
 faiss-cpu==1.10.0
 numpy
 pandas
-sckit-learn
+scikit-learn
 db-sqlite3
