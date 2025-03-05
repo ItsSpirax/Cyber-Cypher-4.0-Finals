@@ -14,3 +14,6 @@ numpy
 pandas
 scikit-learn
 db-sqlite3
+pymupdf
+deep_translator
+resend
