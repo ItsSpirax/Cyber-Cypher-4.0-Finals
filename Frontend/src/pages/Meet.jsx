@@ -768,21 +768,13 @@ const Meet = () => {
                                                         }`}
                                                     >
                                                         <div
-                                                            className={`max-w-[80%] p-3 rounded-lg bg-white ${
+                                                            className={`max-w-[80%] p-3 rounded-lg bg-white text-black ${
                                                                 msg.sender ===
                                                                 "You"
                                                                     ? "text-primary-foreground"
                                                                     : "text-foreground"
                                                             }`}
                                                         >
-                                                            <div className="flex items-center gap-2 mb-1">
-                                                                <span className="text-xs font-medium">
-                                                                    {msg.sender ===
-                                                                    "You"
-                                                                        ? "You"
-                                                                        : "Gemini"}
-                                                                </span>
-                                                            </div>
                                                             <p className="text-sm">
                                                                 {msg.content}
                                                             </p>
