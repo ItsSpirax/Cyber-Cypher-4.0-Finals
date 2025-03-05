@@ -86,8 +86,8 @@ const Agreement = () => {
     };
 
     return (
-        <div className="container mx-auto py-10">
-            <Card>
+        <div className="mx-auto w-min flex h-screen align-middle">
+            <Card className="my-auto">
                 <CardHeader>
                     <CardTitle className="text-2xl">
                         Document Agreement
@@ -149,7 +149,7 @@ const Agreement = () => {
                         ) : (
                             <FileText size={18} />
                         )}
-                        {isUploading ? "Uploading..." : "Generate Transcript"}
+                        {isUploading ? "Uploading..." : "Translate"}
                     </Button>
                 </CardContent>
             </Card>
