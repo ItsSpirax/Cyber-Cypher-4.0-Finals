@@ -34,6 +34,7 @@ const Meet = () => {
         googleSearch: true,
         allowInterruptions: false,
         language: navigator.language || navigator.userLanguage,
+        role: "user",
     });
     const [isConnected, setIsConnected] = useState(false);
     const [userSpeaking, setUserSpeaking] = useState(false);

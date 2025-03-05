@@ -34,6 +34,7 @@ app.add_middleware(
 )
 
 indian_languages = {
+    "en": {"Female": "en-US-AvaNeural", "Male": "en-US-AriaNeural"},
     "as": {"Female": "as-IN-YashicaNeural", "Male": "as-IN-PriyomNeural"},
     "bn": {"Female": "bn-IN-TanishaaNeural", "Male": "bn-IN-BashkarNeural"},
     "gu": {"Female": "gu-IN-DhwaniNeural", "Male": "gu-IN-NiranjanNeural"},
@@ -143,7 +144,7 @@ class GeminiConnection:
                 "system_instruction": {
                     "parts": [
                         {
-                            "text": f"You are a translation agent. Whatever the user says, JUST TRANSLATE IT TO {self.config["language"]}. Do NOT add anything else. Preserve the meaning of the sentences the user says. Do NOT repeat what the user says in the same language."
+                            "text": f"You are a translation agent. Whatever the user says, JUST TRANSLATE IT TO {self.config['language']}. Do NOT add anything else. Preserve the meaning of the sentences the user says. Do NOT repeat what the user says in the same language."
                         }
                     ]
                 },
@@ -197,8 +198,8 @@ class GeminiConnection:
         await self.ws.send(json.dumps(text_message))
 
 
-# Store active connections
-connections: Dict[str, GeminiConnection] = {}
+# Store active connections and their configurations
+connections: Dict[str, Dict] = {}
 
 
 @app.websocket("/ws/{client_id}")
@@ -208,7 +209,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
     try:
         # Create new Gemini connection for this client
         gemini = GeminiConnection()
-        connections[client_id] = gemini
+        connections[client_id] = {"gemini": gemini, "config": None}
 
         # Wait for initial configuration
         config_data = await websocket.receive_json()
@@ -216,7 +217,9 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
             raise ValueError("First message must be configuration")
 
         # Set the configuration
-        gemini.set_config(config_data.get("config", {}))
+        config = config_data.get("config", {})
+        gemini.set_config(config)
+        connections[client_id]["config"] = config
 
         # Initialize Gemini connection
         await gemini.connect()
@@ -298,7 +301,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
                                     async def process_debounced_text():
                                         nonlocal pending_text, pending_task
                                         try:
-                                            await asyncio.sleep(3)
+                                            await asyncio.sleep(2)
                                             text_to_convert = pending_text
                                             pending_text = ""
                                             pending_task = None
@@ -317,6 +320,24 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
                                                         "data": encoded_audio,
                                                     }
                                                 )
+                                                # Send translated audio to the opposite client
+                                                for other_client_id, other_conn in connections.items():
+                                                    if other_client_id != client_id:
+                                                        other_language = other_conn["config"]["language"]
+                                                        translated_audio = tts(
+                                                            text_to_convert,
+                                                            other_language,
+                                                        )
+                                                        if translated_audio:
+                                                            encoded_translated_audio = b64.b64encode(
+                                                                translated_audio
+                                                            ).decode("utf-8")
+                                                            await other_conn["gemini"].ws.send_json(
+                                                                {
+                                                                    "type": "audio",
+                                                                    "data": encoded_translated_audio,
+                                                                }
+                                                            )
                                         except asyncio.CancelledError:
                                             return
 
@@ -347,7 +368,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
     finally:
         # Cleanup
         if client_id in connections:
-            await connections[client_id].close()
+            await connections[client_id]["gemini"].close()
             del connections[client_id]
 
 
