@@ -325,7 +325,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
                                                     other_client_id,
                                                     other_conn,
                                                 ) in connections.items():
-                                                    print(other_conn)
+                                                    print(other_client_id, other_conn)
                                                     if other_client_id != client_id:
                                                         other_language = other_conn[
                                                             "config"
@@ -346,6 +346,14 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
                                                                 {
                                                                     "type": "audio",
                                                                     "data": encoded_translated_audio,
+                                                                }
+                                                            )
+                                                            await other_conn[
+                                                                "ws"
+                                                            ].send_json(
+                                                                {
+                                                                    "type": "text",
+                                                                    "data": text_to_convert,
                                                                 }
                                                             )
                                         except asyncio.CancelledError:

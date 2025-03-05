@@ -45,6 +45,7 @@ const Meet = () => {
     const clientId = useRef(crypto.randomUUID());
     const analyserRef = useRef(null);
     const animationFrameRef = useRef(null);
+    const [text, setText] = useState("");
 
     let audioBuffer = [];
     let isPlaying = false;
@@ -64,6 +65,10 @@ const Meet = () => {
 
         animationFrameRef.current = requestAnimationFrame(detectAudioLevel);
     };
+
+    useEffect(() => {
+        console.log(text);
+    }, [text]);
 
     const startStream = async () => {
         wsRef.current = new WebSocket(
