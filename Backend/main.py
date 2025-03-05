@@ -314,13 +314,6 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
                                                 encoded_audio = b64.b64encode(
                                                     audio_data
                                                 ).decode("utf-8")
-                                                # await websocket.send_json(
-                                                #     {
-                                                #         "type": "audio",
-                                                #         "data": encoded_audio,
-                                                #     }
-                                                # )
-                                                # Send translated audio to the opposite client
                                                 for (
                                                     other_client_id,
                                                     other_conn,
