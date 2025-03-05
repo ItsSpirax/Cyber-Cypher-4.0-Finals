@@ -625,8 +625,8 @@ const Agent = () => {
                                             )}
                                             <Avatar className="h-16 w-16 relative z-10">
                                                 <AvatarImage
-                                                    alt="Gemini"
-                                                    src="https://ui-avatars.com/api/?name=Gemini&background=6d28d9&color=fff"
+                                                    alt="HomeConnect"
+                                                    src="https://ui-avatars.com/api/?name=HomeConnect&background=6d28d9&color=fff"
                                                 />
                                                 <AvatarFallback
                                                     className={`${
