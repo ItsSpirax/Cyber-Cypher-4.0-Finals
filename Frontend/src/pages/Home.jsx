@@ -20,6 +20,11 @@ const HomePage = () => {
                     </span>
                 </div>
                 <div className="flex items-center gap-4">
+                    <Link to="/agreement">
+                        <Button variant="outline" className="hidden sm:flex">
+                            Translate Agreement
+                        </Button>
+                    </Link>
                     <Link to="/register">
                         <Button variant="outline" className="hidden sm:flex">
                             Register
