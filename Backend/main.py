@@ -23,15 +23,8 @@ from retrieval import (
     find_similar_properties,
     load_cleaned_data,
 )
-import io
-import uuid
-from azure.identity import DefaultAzureCredential
 from azure.storage.blob import (
     BlobServiceClient,
-    ContainerClient,
-    BlobBlock,
-    BlobClient,
-    StandardBlobTier,
 )
 import os
 from fastapi import FastAPI, UploadFile, File
