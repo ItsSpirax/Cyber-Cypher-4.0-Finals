@@ -4,6 +4,10 @@ import faiss
 import numpy as np
 import sqlite3
 from sklearn.feature_extraction.text import TfidfVectorizer
+import google.generativeai as genai
+import re
+
+genai.configure("YOUR_API_KEY")
 
 
 def preprocess_data(df):
@@ -18,7 +22,7 @@ def preprocess_data(df):
     return df
 
 
-def save_cleaned_data(csv_path, db_path="property_data.db"):
+def save_cleaned_data(csv_path, db_path="data/property_data.db"):
     """Loads raw CSV, preprocesses data, and stores it in SQLite."""
     raw_df = pd.read_csv(csv_path)
     df_cleaned = preprocess_data(raw_df)
@@ -28,7 +32,7 @@ def save_cleaned_data(csv_path, db_path="property_data.db"):
     print("Data cleaned and saved successfully!")
 
 
-def load_cleaned_data(db_path="property_data.db"):
+def load_cleaned_data(db_path="data/property_data.db"):
     """Loads cleaned property data from SQLite."""
     conn = sqlite3.connect(db_path)
     df = pd.read_sql("SELECT * FROM properties", conn)
@@ -45,6 +49,7 @@ def get_user_input():
     user_price = float(input("Enter maximum budget: "))
     user_location = input("Enter preferred location: ")
     user_amenities = input("Enter preferred amenities (comma-separated): ").split(",")
+    print(user_amenities)
     return user_size, user_price, user_location, user_amenities
 
 
@@ -97,14 +102,54 @@ def find_similar_properties(df, user_size, user_price, user_location, user_ameni
         ]
     ]
 
+def extract_keywords_from_text(user_text):
+    """
+    Extracts size, price, location, and amenities from a given text using Google Gemini.
+    Returns structured data.
+    """
+    model = genai.GenerativeModel("gemini-2.0-flash-lite-001")
+
+    prompt = f"""
+    Extract the following details from the given text and return them in JSON format:
+    - **Size**: The apartment size in numeric format. Eg, For 1BHK give output as 1. 
+    - **Price**: The budget mentioned (assumed in INR unless stated otherwise).
+    - **Location**: The place where the user is looking for the apartment.
+    - **Amenities**: Any specific features the user is asking for.
+
+    Example Format:
+    {{
+      "size": "2BHK",
+      "price": 50000,
+      "location": "Mumbai",
+      "amenities": ["gym", "swimming pool"]
+    }}
+
+    Text: "{user_text}"
+    """
+
+    # Generate response from Gemini
+    response = model.generate_content(prompt)
+
+    # Extract JSON output using regex to handle inconsistencies
+    match = re.search(r"\{.*\}", response.text, re.DOTALL)
+    if match:
+        extracted_data = eval(match.group())  # Convert JSON string to dict
+    else:
+        extracted_data = {"size": None, "price": None, "location": None, "amenities": []}
+
+    return extracted_data
+
 
 if __name__ == "__main__":
-    db_path = "property_data.db"
+    db_path = "data/property_data.db"
     df = load_cleaned_data(db_path)
 
-    user_size, user_price, user_location, user_amenities = get_user_input()
+    user_query = "Looking for a 2BHK in Vikhroli within 1,20,000 budget."
+    result = extract_keywords_from_text(user_query)
+
 
     top_properties = find_similar_properties(
-        df, user_size, user_price, user_location, user_amenities
+        df, result["size"], result["price"], result["location"], result["amenities"]
     )
     print(top_properties)
+
