@@ -114,7 +114,7 @@ def extract_keywords_from_text(user_text):
     Returns structured data.
     """
     prompt = f"""
-    Extract the following details from the given text and return them in JSON format:
+    Extract the following details from the given text and return them in JSON format in ENGLISH ONLY DONT KEEP ANY LOCAL LANGUAGE IN OUTPUT:
     - **Size**: The apartment size in numeric format. Eg, For 1BHK give output as 1. 
     - **Price**: The budget mentioned (assumed in INR unless stated otherwise).
     - **Location**: The place where the user is looking for the apartment.
