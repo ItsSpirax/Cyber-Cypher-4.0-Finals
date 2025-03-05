@@ -9,6 +9,7 @@ from typing import Dict
 import azure.cognitiveservices.speech as speechsdk
 from dotenv import load_dotenv
 from fastapi import FastAPI, WebSocket, Request, HTTPException
+from fastapi import FastAPI, File, UploadFile, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 import google.generativeai as genai
 from pymongo import MongoClient
@@ -23,6 +24,10 @@ from retrieval import (
     find_similar_properties,
     load_cleaned_data,
 )
+import io
+import uuid
+from azure.identity import DefaultAzureCredential
+from azure.storage.blob import BlobServiceClient, ContainerClient, BlobBlock, BlobClient, StandardBlobTier
 
 
 load_dotenv()
@@ -117,6 +122,30 @@ async def register(name: str, no: str, gender: str, email: str):
         content_variables='{"1":"' + str(otp) + '"}',
     )
     return {"status": "success"}
+
+
+@app.post("/upload")
+async def upload(file: UploadFile = File(...)):
+    try:
+        blob_service_client = BlobServiceClient.from_connection_string(
+            os.getenv("AZURE_STORAGE_CONNECTION_STRING")
+        )
+        container_name = "pdfs"
+        container_client = blob_service_client.get_container_client(container_name)
+
+        if not container_client.exists():
+            container_client.create_container()
+
+        filename = file.filename
+        blob_client = container_client.get_blob_client(filename)
+        await blob_client.upload_blob(await file.read(), overwrite=True)
+
+        blob_uri = f"https://{blob_service_client.account_name}.blob.core.windows.net/{container_name}/{filename}"
+
+        return {"status": "success", "uri": blob_uri}
+
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
 
 
 @app.post("/verify")
