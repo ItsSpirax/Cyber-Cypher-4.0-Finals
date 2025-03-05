@@ -334,6 +334,21 @@ const Meet = () => {
         };
     }, []);
 
+    const getPropertyIcon = (type) => {
+        switch (type) {
+            case "house":
+                return <Home className="h-5 w-5" />;
+            case "apartment":
+                return <Building className="h-5 w-5" />;
+            case "commercial":
+                return <Store className="h-5 w-5" />;
+            case "condo":
+                return <Building2 className="h-5 w-5" />;
+            default:
+                return <MapPin className="h-5 w-5" />;
+        }
+    };
+
     const renderPropertyCard = (property) => (
         <Card
             key={property.link || property.id}
