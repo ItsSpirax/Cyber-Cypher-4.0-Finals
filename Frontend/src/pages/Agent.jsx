@@ -22,6 +22,8 @@ import {
     Bath,
     Square,
     RefreshCw,
+    Send,
+    CheckCircle2,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -38,7 +40,7 @@ import { base64ToFloat32Array, float32ToPcm16 } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 
-const Meet = () => {
+const Agent = () => {
     const [isStreaming, setIsStreaming] = useState(false);
     const [error, setError] = useState(null);
     const [config, setConfig] = useState({
@@ -64,8 +66,9 @@ const Meet = () => {
     const [loadingProperties, setLoadingProperties] = useState(false);
     const [propertyError, setPropertyError] = useState(null);
     const [requirements, setRequirements] = useState(null);
-    const [lastFetchTime, setLastFetchTime] = useState(null);
-    const pollTimeoutRef = useRef(null);
+    const [sendingRecommendations, setSendingRecommendations] = useState(false);
+    const [recommendationSent, setRecommendationSent] = useState(false);
+    const recommendationTimerRef = useRef(null);
 
     let audioBuffer = [];
     let isPlaying = false;
@@ -230,17 +233,23 @@ const Meet = () => {
         }
     };
 
-    const pollForRecommendations = async () => {
-        try {
-            setLoadingProperties(true);
+    const getProperties = async () => {
+        setLoadingProperties(true);
+        setPropertyError(null);
 
+        try {
+            // Get all messages from the conversation
+            const transcript = messages.map((msg) => msg.content).join(" ");
+
+            // Call the /properties endpoint with the transcript
             const response = await fetch(
-                `${process.env.SERVER_URL}/recommendations/${clientId.current}`,
+                `${process.env.SERVER_URL}/properties`,
                 {
-                    method: "GET",
+                    method: "POST",
                     headers: {
                         "Content-Type": "application/json",
                     },
+                    body: JSON.stringify({ transcript }),
                 },
             );
 
@@ -250,42 +259,46 @@ const Meet = () => {
 
             const data = await response.json();
 
-            if (data.properties && data.properties.length > 0) {
-                setRequirements(data.requirements);
-                setProperties(data.properties);
-                setLastFetchTime(new Date());
-            }
+            setRequirements(data.requirements);
+            setProperties(data.properties || []);
 
             setLoadingProperties(false);
-
-            // Schedule next poll
-            pollTimeoutRef.current = setTimeout(pollForRecommendations, 5000);
         } catch (error) {
-            console.error("Error polling for recommendations:", error);
-            setPropertyError(
-                `Failed to load recommendations: ${error.message}`,
-            );
+            console.error("Error fetching properties:", error);
+            setPropertyError(`Failed to load properties: ${error.message}`);
             setLoadingProperties(false);
-
-            // Retry after a delay even if there was an error
-            pollTimeoutRef.current = setTimeout(pollForRecommendations, 10000);
         }
     };
 
-    useEffect(() => {
-        // Start polling when the conversation begins
-        if (isConnected && !pollTimeoutRef.current) {
-            pollForRecommendations();
+    const getPropertyIcon = (type) => {
+        switch (type) {
+            case "house":
+                return <Home className="h-5 w-5" />;
+            case "apartment":
+                return <Building className="h-5 w-5" />;
+            case "commercial":
+                return <Store className="h-5 w-5" />;
+            case "condo":
+                return <Building2 className="h-5 w-5" />;
+            default:
+                return <MapPin className="h-5 w-5" />;
         }
+    };
 
-        // Clean up when component unmounts or conversation ends
-        return () => {
-            if (pollTimeoutRef.current) {
-                clearTimeout(pollTimeoutRef.current);
-                pollTimeoutRef.current = null;
-            }
-        };
-    }, [isConnected]);
+    const getStatusColor = (status) => {
+        switch (status) {
+            case "For Sale":
+                return "text-green-500";
+            case "For Rent":
+                return "text-blue-500";
+            case "Sold":
+                return "text-gray-500";
+            case "Under Contract":
+                return "text-orange-500";
+            default:
+                return "text-purple-500";
+        }
+    };
 
     const playNextInQueue = async () => {
         if (!audioContextRef.current || audioBuffer.length == 0) {
@@ -314,6 +327,71 @@ const Meet = () => {
         };
         source.start();
     };
+
+    const sendRecommendationsToUser = async () => {
+        if (properties.length === 0 || !requirements) {
+            alert("No properties available to recommend");
+            return;
+        }
+
+        setSendingRecommendations(true);
+
+        try {
+            // Send the recommendations to be stored for the user
+            const response = await fetch(
+                `${process.env.SERVER_URL}/store-recommendations`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        agentId: clientId.current,
+                        requirements,
+                        properties,
+                    }),
+                },
+            );
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+
+            setRecommendationSent(true);
+
+            // Reset the "sent" status after 5 seconds
+            if (recommendationTimerRef.current) {
+                clearTimeout(recommendationTimerRef.current);
+            }
+
+            recommendationTimerRef.current = setTimeout(() => {
+                setRecommendationSent(false);
+            }, 5000);
+
+            // Add a message to the conversation
+            setMessages((prev) => [
+                ...prev,
+                {
+                    content: `I've sent the client ${properties.length} property recommendations based on their requirements.`,
+                    sender: "System",
+                    timestamp: new Date().toISOString(),
+                },
+            ]);
+        } catch (error) {
+            console.error("Error sending recommendations:", error);
+            alert(`Failed to send recommendations: ${error.message}`);
+        } finally {
+            setSendingRecommendations(false);
+        }
+    };
+
+    useEffect(() => {
+        return () => {
+            if (recommendationTimerRef.current) {
+                clearTimeout(recommendationTimerRef.current);
+            }
+        };
+    }, []);
 
     useEffect(() => {
         return () => {
@@ -415,7 +493,10 @@ const Meet = () => {
                 <div className="flex items-center gap-3">
                     <Sparkles className="h-6 w-6 text-primary" />
                     <h1 className="text-xl font-bold bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-transparent bg-clip-text">
-                        Gemini Voice Chat
+                        Gemini Voice Chat{" "}
+                        <span className="text-sm font-normal text-muted-foreground">
+                            (Agent View)
+                        </span>
                     </h1>
                 </div>
                 <div className="flex items-center gap-2">
@@ -634,12 +715,60 @@ const Meet = () => {
                                 <h2 className="text-lg font-semibold">
                                     Property Listings
                                 </h2>
-                                {lastFetchTime && (
-                                    <div className="text-xs text-muted-foreground">
-                                        Last updated:{" "}
-                                        {lastFetchTime.toLocaleTimeString()}
-                                    </div>
-                                )}
+                                <div className="flex gap-2">
+                                    {properties.length > 0 && (
+                                        <Button
+                                            onClick={sendRecommendationsToUser}
+                                            variant="outline"
+                                            size="sm"
+                                            disabled={
+                                                sendingRecommendations ||
+                                                recommendationSent ||
+                                                properties.length === 0
+                                            }
+                                            className="flex items-center gap-2"
+                                        >
+                                            {sendingRecommendations ? (
+                                                <>
+                                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                                    Sending...
+                                                </>
+                                            ) : recommendationSent ? (
+                                                <>
+                                                    <CheckCircle2 className="h-4 w-4 text-green-500" />
+                                                    Sent to User
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Send className="h-4 w-4" />
+                                                    Push to Client
+                                                </>
+                                            )}
+                                        </Button>
+                                    )}
+                                    <Button
+                                        onClick={getProperties}
+                                        variant="outline"
+                                        size="sm"
+                                        disabled={
+                                            loadingProperties ||
+                                            messages.length === 0
+                                        }
+                                        className="flex items-center gap-2"
+                                    >
+                                        {loadingProperties ? (
+                                            <>
+                                                <Loader2 className="h-4 w-4 animate-spin" />
+                                                Loading...
+                                            </>
+                                        ) : (
+                                            <>
+                                                <RefreshCw className="h-4 w-4" />
+                                                Find Properties
+                                            </>
+                                        )}
+                                    </Button>
+                                </div>
                             </div>
 
                             {requirements && (
@@ -703,7 +832,7 @@ const Meet = () => {
                                     <div className="flex flex-col items-center gap-2">
                                         <Loader2 className="h-8 w-8 animate-spin text-primary" />
                                         <p className="text-sm text-muted-foreground">
-                                            Looking for recommendations...
+                                            Loading properties...
                                         </p>
                                     </div>
                                 </div>
@@ -713,12 +842,12 @@ const Meet = () => {
                                         <Building className="h-8 w-8 text-muted-foreground" />
                                         <div>
                                             <p className="font-medium">
-                                                No recommendations yet
+                                                No listings found
                                             </p>
                                             <p className="text-sm text-muted-foreground">
-                                                The agent will recommend
-                                                properties based on your
-                                                conversation
+                                                {messages.length === 0
+                                                    ? "Start a conversation to discuss your property needs"
+                                                    : "Click 'Find Properties' to search for available properties based on your conversation"}
                                             </p>
                                         </div>
                                     </div>
@@ -820,4 +949,4 @@ const Meet = () => {
     );
 };
 
-export default Meet;
+export default Agent;

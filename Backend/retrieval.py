@@ -6,8 +6,13 @@ import sqlite3
 from sklearn.feature_extraction.text import TfidfVectorizer
 import google.generativeai as genai
 import re
+from dotenv import load_dotenv
+import os
 
-genai.configure("YOUR_API_KEY")
+load_dotenv()
+
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+model = genai.GenerativeModel("gemini-2.0-flash-lite-001")
 
 
 def preprocess_data(df):
@@ -102,13 +107,12 @@ def find_similar_properties(df, user_size, user_price, user_location, user_ameni
         ]
     ]
 
+
 def extract_keywords_from_text(user_text):
     """
     Extracts size, price, location, and amenities from a given text using Google Gemini.
     Returns structured data.
     """
-    model = genai.GenerativeModel("gemini-2.0-flash-lite-001")
-
     prompt = f"""
     Extract the following details from the given text and return them in JSON format:
     - **Size**: The apartment size in numeric format. Eg, For 1BHK give output as 1. 
@@ -118,16 +122,14 @@ def extract_keywords_from_text(user_text):
 
     Example Format:
     {{
-      "size": "2BHK",
-      "price": 50000,
-      "location": "Mumbai",
-      "amenities": ["gym", "swimming pool"]
+        "size": "2BHK",
+        "price": 50000,
+        "location": "Mumbai",
+        "amenities": ["gym", "swimming pool"]
     }}
 
     Text: "{user_text}"
     """
-
-    # Generate response from Gemini
     response = model.generate_content(prompt)
 
     # Extract JSON output using regex to handle inconsistencies
@@ -135,7 +137,12 @@ def extract_keywords_from_text(user_text):
     if match:
         extracted_data = eval(match.group())  # Convert JSON string to dict
     else:
-        extracted_data = {"size": None, "price": None, "location": None, "amenities": []}
+        extracted_data = {
+            "size": None,
+            "price": None,
+            "location": None,
+            "amenities": [],
+        }
 
     return extracted_data
 
@@ -147,9 +154,7 @@ if __name__ == "__main__":
     user_query = "Looking for a 2BHK in Vikhroli within 1,20,000 budget."
     result = extract_keywords_from_text(user_query)
 
-
     top_properties = find_similar_properties(
         df, result["size"], result["price"], result["location"], result["amenities"]
     )
     print(top_properties)
-

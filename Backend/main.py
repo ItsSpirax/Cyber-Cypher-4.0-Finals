@@ -3,17 +3,26 @@ import json
 import os
 import random
 import tempfile
+import datetime
 from typing import Dict
 
 import azure.cognitiveservices.speech as speechsdk
 from dotenv import load_dotenv
-from fastapi import FastAPI, WebSocket
+from fastapi import FastAPI, WebSocket, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import google.generativeai as genai
 from pymongo import MongoClient
 from twilio.rest import Client
 from websockets import connect
 import base64 as b64
+from pydantic import BaseModel
+
+# Import from retrieval.py
+from retrieval import (
+    extract_keywords_from_text,
+    find_similar_properties,
+    load_cleaned_data,
+)
 
 
 load_dotenv()
@@ -26,6 +35,9 @@ speech_config = speechsdk.SpeechConfig(
 mongo_client = MongoClient(os.getenv("MONGO_URI"))
 db = mongo_client.estate_agent
 
+db_path = "data/property_data.db"
+df = load_cleaned_data(db_path)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -36,6 +48,8 @@ app.add_middleware(
 
 indian_languages = {
     "en": {"Female": "en-US-AvaNeural", "Male": "en-US-AriaNeural"},
+    "en-IN": {"Female": "en-US-AvaNeural", "Male": "en-US-AriaNeural"},
+    "en-US": {"Female": "en-US-AvaNeural", "Male": "en-US-AriaNeural"},
     "as": {"Female": "as-IN-YashicaNeural", "Male": "as-IN-PriyomNeural"},
     "bn": {"Female": "bn-IN-TanishaaNeural", "Male": "bn-IN-BashkarNeural"},
     "gu": {"Female": "gu-IN-DhwaniNeural", "Male": "gu-IN-NiranjanNeural"},
@@ -69,6 +83,7 @@ def tts(text, language, gender="Male"):
     else:
         return None
 
+
 def translate(language1, language2, text):
     genai.configure(api_key=os.getenv("GEMINI_API_KEY_1"))
 
@@ -79,6 +94,7 @@ def translate(language1, language2, text):
     response = model.generate_content(prompt)
 
     return response.text
+
 
 @app.post("/register")
 async def register(name: str, no: str, gender: str, email: str):
@@ -213,26 +229,25 @@ class GeminiConnection:
 # Store active connections and their configurations
 connections: Dict[str, Dict] = {}
 
+# Add a dictionary to store recommendations by client_id
+client_recommendations = {}
+
 
 @app.websocket("/ws/{client_id}")
 async def websocket_endpoint(websocket: WebSocket, client_id: str):
     await websocket.accept()
-
     try:
         # Create new Gemini connection for this client
         gemini = GeminiConnection()
         connections[client_id] = {"ws": websocket, "config": None}
-
         # Wait for initial configuration
         config_data = await websocket.receive_json()
         if config_data.get("type") != "config":
             raise ValueError("First message must be configuration")
-
         # Set the configuration
         config = config_data.get("config", {})
         gemini.set_config(config)
         connections[client_id]["config"] = config
-
         # Initialize Gemini connection
         await gemini.connect()
 
@@ -245,15 +260,12 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
                         if websocket.client_state.value == 3:  # WebSocket.CLOSED
                             print("WebSocket connection closed by client")
                             return
-
                         message = await websocket.receive()
-
                         # Check for close message
                         if message["type"] == "websocket.disconnect":
                             print("Received disconnect message")
                             await gemini.close()
                             return
-
                         message_content = json.loads(message["text"])
                         msg_type = message_content["type"]
                         if msg_type == "audio":
@@ -275,7 +287,6 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
                         if "disconnect message" in str(e):
                             return
                         continue
-
             except Exception as e:
                 print(f"Fatal error in receive_from_client: {str(e)}")
                 return
@@ -288,13 +299,10 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
                     if websocket.client_state.value == 3:  # WebSocket.CLOSED
                         print("WebSocket closed, stopping Gemini receiver")
                         return
-
                     msg = await gemini.receive()
                     response = json.loads(msg)
-
                     try:
                         parts = response["serverContent"]["modelTurn"]["parts"]
-
                         if any("inlineData" in p for p in parts):
                             for p in parts:
                                 if "inlineData" in p:
@@ -312,14 +320,19 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
                                     async def process_debounced_text():
                                         nonlocal pending_text, pending_task
                                         try:
-                                            await asyncio.sleep(2)
+                                            await asyncio.sleep(0.5)
                                             text_to_convert = pending_text
                                             pending_text = ""
                                             pending_task = None
                                             await websocket.send_json(
-                                                {"type": "text", "data": text_to_convert}
+                                                {
+                                                    "type": "text",
+                                                    "data": {
+                                                        "text": text_to_convert,
+                                                        "role": "You",
+                                                    },
+                                                }
                                             )
-                                                
                                             for (
                                                 other_client_id,
                                                 other_conn,
@@ -329,12 +342,18 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
                                                         "config"
                                                     ]["language"]
                                                     translated_text = translate(
-                                                            gemini.config["language"],
-                                                            other_language,
-                                                            text_to_convert,
-                                                        )
-                                                    print(f"Original Message {gemini.config["language"]}: " + text_to_convert)
-                                                    print(f"Translated Text {other_language}: " + translated_text)
+                                                        gemini.config["language"],
+                                                        other_language,
+                                                        text_to_convert,
+                                                    )
+                                                    print(
+                                                        f"Original Message {gemini.config['language']}: "
+                                                        + text_to_convert
+                                                    )
+                                                    print(
+                                                        f"Translated Text {other_language}: "
+                                                        + translated_text
+                                                    )
                                                     translated_audio = tts(
                                                         translated_text,
                                                         other_language,
@@ -358,7 +377,10 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
                                                         ].send_json(
                                                             {
                                                                 "type": "text",
-                                                                "data": translated_text,
+                                                                "data": {
+                                                                    "text": text_to_convert,
+                                                                    "role": "HomeConnect",
+                                                                },
                                                             }
                                                         )
                                         except asyncio.CancelledError:
@@ -369,7 +391,6 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
                                     )
                     except KeyError:
                         pass
-
                     # Handle turn completion
                     try:
                         if response["serverContent"]["turnComplete"]:
@@ -385,13 +406,83 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
         async with asyncio.TaskGroup() as tg:
             tg.create_task(receive_from_client())
             tg.create_task(receive_from_gemini())
-
     except Exception as e:
         print(f"WebSocket error: {e}")
     finally:
         # Cleanup
         if client_id in connections:
             del connections[client_id]
+        # Remove stored recommendations when client disconnects
+        if client_id in client_recommendations:
+            del client_recommendations[client_id]
+
+
+# Define models for request bodies
+class TextRequest(BaseModel):
+    text: str
+
+
+class PropertyRequest(BaseModel):
+    transcript: str
+
+
+# Add new endpoints
+@app.post("/properties")
+async def get_properties(request: PropertyRequest):
+    extracted_data = extract_keywords_from_text(request.transcript)
+    properties = find_similar_properties(
+        df,
+        extracted_data["size"],
+        extracted_data["price"],
+        extracted_data["location"],
+        extracted_data["amenities"],
+    )
+    if hasattr(properties, "to_dict"):
+        properties = properties.to_dict("records")
+    elif isinstance(properties, str):
+        return {"requirements": extracted_data, "message": properties, "properties": []}
+    return {"requirements": extracted_data, "properties": properties}
+
+
+# Add this endpoint to get recommendations for a specific client
+@app.get("/recommendations/{client_id}")
+async def get_recommendations(client_id: str):
+    """Get property recommendations for a specific client."""
+    if client_id not in client_recommendations:
+        return {"requirements": None, "properties": []}
+    return client_recommendations[client_id]
+
+
+# Add an endpoint to store recommendations from the agent
+@app.post("/store-recommendations")
+async def store_recommendations(request: Request):
+    data = await request.json()
+    agent_id = data.get("agentId")
+    requirements = data.get("requirements")
+    properties = data.get("properties")
+
+    # Find all connected users (non-agents)
+    user_clients = []
+    for client_id, conn in connections.items():
+        if conn["config"]["role"] == "user":
+            user_clients.append(client_id)
+
+    if not user_clients:
+        return {"status": "error", "message": "No connected users found"}
+
+    # Store recommendations for all connected users
+    for user_id in user_clients:
+        client_recommendations[user_id] = {
+            "requirements": requirements,
+            "properties": properties,
+            "from_agent": agent_id,
+            "timestamp": datetime.datetime.now().isoformat(),
+        }
+
+    return {
+        "status": "success",
+        "message": f"Recommendations sent to {len(user_clients)} users",
+    }
 
 
 if __name__ == "__main__":

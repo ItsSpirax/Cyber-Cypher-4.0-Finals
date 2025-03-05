@@ -14,6 +14,7 @@ export default defineConfig((mode) => {
         },
         define: {
             "process.env.LIVE_URL": JSON.stringify(env.LIVE_URL),
+            "process.env.SERVER_URL": JSON.stringify(env.SERVER_URL),
         },
     };
 });
