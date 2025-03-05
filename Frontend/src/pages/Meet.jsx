@@ -127,7 +127,7 @@ const Meet = () => {
                     ...prev,
                     {
                         content: response.data.text,
-                        sender: geminiSpeaking ? "HomeConnect" : "You",
+                        sender: response.data.role || "Unknown",
                         timestamp: new Date().toISOString(),
                     },
                 ]);
