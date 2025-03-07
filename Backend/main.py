@@ -40,14 +40,6 @@ db = mongo_client.estate_agent
 db_path = "data/property_data.db"
 df = load_cleaned_data(db_path)
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
 indian_languages = {
     "en": {"Female": "en-US-AvaNeural", "Male": "en-US-AriaNeural"},
     "en-IN": {"Female": "en-US-AvaNeural", "Male": "en-US-AriaNeural"},
@@ -552,6 +544,13 @@ def upload_file(file: UploadFile = File(...), language: str = "en", email: str =
     asyncio.run(translate_pdf(language, email))
     return {"success": True}
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[os.getenv("FRONTEND_URL")],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 if __name__ == "__main__":
     import uvicorn
