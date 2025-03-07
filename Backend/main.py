@@ -10,7 +10,7 @@ import resend
 import azure.cognitiveservices.speech as speechsdk
 from dotenv import load_dotenv
 from fastapi import FastAPI, WebSocket, Request
-from fastapi import FastAPI, File, UploadFile, WebSocket
+from fastapi import FastAPI, File, UploadFile, WebSocket, Form
 from fastapi.middleware.cors import CORSMiddleware
 import google.generativeai as genai
 from pymongo import MongoClient
@@ -537,12 +537,20 @@ async def translate_pdf(language: str, email: str):
 
 
 @app.post("/upload")
-def upload_file(file: UploadFile = File(...), language: str = "en", email: str = None):
+async def upload_file(
+    file: UploadFile = File(...), 
+    language: str = Form("en"), 
+    email: str = Form(...)
+):
+    if not email or not language:
+        return {"success": False, "error": "Email and language must be provided"}
+    
     file.filename = "temp.pdf"
     with open(file.filename, "wb") as f:
         f.write(file.file.read())
-    asyncio.run(translate_pdf(language, email))
-    return {"success": True}
+    
+    await translate_pdf(language, email)
+    return {"success": True, "message": f"PDF will be translated to {language} and sent to {email}"}
 
 app.add_middleware(
     CORSMiddleware,
